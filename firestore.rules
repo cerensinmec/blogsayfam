@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Kullanıcılar koleksiyonu için kurallar
+    match /users/{userId} {
+      // Kullanıcılar kendi profillerini okuyabilir ve güncelleyebilir
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Yeni kullanıcı oluştururken kullanıcı ID'si kontrol edilir
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Admin tüm kullanıcıları okuyabilir
+      allow read: if request.auth != null && 
+        request.auth.token.email == 'cerennsinmec@gmail.com';
+    }
+    
+    // Notlar koleksiyonu için kurallar
+    match /notes/{noteId} {
+      // Kullanıcılar sadece kendi notlarını okuyabilir ve yazabilir
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Yeni not oluştururken kullanıcı ID'si kontrol edilir
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Blog yazıları koleksiyonu için kurallar
+    match /blog-posts/{postId} {
+      // Herkes blog yazılarını okuyabilir
+      allow read: if true;
+      
+      // Giriş yapmış kullanıcılar blog yazısı oluşturabilir
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.authorId;
+      
+      // Sadece yazar veya admin blog yazısını güncelleyebilir
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.authorId || 
+         request.auth.token.email == 'cerennsinmec@gmail.com');
+      
+      // Sadece yazar veya admin blog yazısını silebilir
+      allow delete: if request.auth != null && 
+        (request.auth.uid == resource.data.authorId || 
+         request.auth.token.email == 'cerennsinmec@gmail.com');
+    }
+  }
+} 

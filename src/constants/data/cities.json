@@ -1,0 +1,121 @@
+[
+  {
+    "id": "eskisehir",
+    "name": "Eskişehir",
+    "description": "Porsuk Çayı'nın kenarında kurulu, üniversite şehri. Öğrenci hayatının canlı olduğu, kültür-sanat etkinliklerinin yoğun olduğu bir şehir.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Eskisehir",
+    "experience": "Eskişehir'de üniversite okurken yaşadığım deneyimler çok değerliydi. Porsuk Çayı'nın kenarında yürüyüşler, Odunpazarı evlerinin tarihi dokusu, Sazova Parkı'nın güzelliği beni çok etkiledi. Özellikle kış aylarında kar yağdığında şehrin görünümü muhteşem oluyordu."
+  },
+  {
+    "id": "gaziantep",
+    "name": "Gaziantep",
+    "description": "Antep fıstığı ve mutfağıyla ünlü, tarihi dokusu zengin bir şehir. Zeugma Mozaik Müzesi ve tarihi hanlarıyla öne çıkıyor.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Gaziantep",
+    "experience": "Gaziantep'in mutfağını keşfetmek gerçekten muhteşemdi. Antep kebabı, baklava, katmer... Her yemek bir sanat eseri gibiydi. Zeugma Mozaik Müzesi'ndeki tarihi eserler beni çok etkiledi."
+  },
+  {
+    "id": "sanliurfa",
+    "name": "Şanlıurfa",
+    "description": "Peygamberler şehri olarak bilinen, tarihi ve dini önemi büyük olan bir şehir. Balıklıgöl ve tarihi yapılarıyla ünlü.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Sanliurfa",
+    "experience": "Şanlıurfa'nın mistik atmosferi beni çok etkiledi. Balıklıgöl'ün huzur verici ortamı, tarihi camilerin görkemi, sokaklarında dolaşırken hissettiğim tarih kokusu unutulmaz."
+  },
+  {
+    "id": "mersin",
+    "name": "Mersin",
+    "description": "Akdeniz'in mavi sularına kıyısı olan, modern ve gelişmiş bir şehir. Limanı ve ticari önemi büyük.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Mersin",
+    "experience": "Mersin'in deniz manzarası ve modern yapısı beni çok etkiledi. Sahil boyunca yürüyüşler, taze deniz ürünleri, sıcak insanlarıyla güzel anılar biriktirdim."
+  },
+  {
+    "id": "antalya",
+    "name": "Antalya",
+    "description": "Turizm başkenti olarak bilinen, tarihi ve doğal güzellikleriyle ünlü şehir. Kaleiçi ve Konyaaltı sahili öne çıkıyor.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Antalya",
+    "experience": "Antalya'nın doğal güzellikleri gerçekten muhteşem. Kaleiçi'nin tarihi dokusu, Konyaaltı sahili, Düden Şelalesi... Her yeri ayrı bir güzellik."
+  },
+  {
+    "id": "diyarbakir",
+    "name": "Diyarbakır",
+    "description": "Tarihi surları ve kültürel zenginliğiyle öne çıkan, kadim bir şehir. Ulu Cami ve Hevsel Bahçeleri UNESCO listesinde.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Diyarbakir",
+    "experience": "Diyarbakır'ın tarihi surları ve kültürel dokusu beni çok etkiledi. Ulu Cami'nin görkemi, Hevsel Bahçeleri'nin doğal güzelliği, sokaklarında dolaşırken hissettiğim tarih."
+  },
+  {
+    "id": "mardin",
+    "name": "Mardin",
+    "description": "Taş evleri ve tarihi dokusuyla ünlü, doğu'nun incisi olarak bilinen şehir. Artuklu mimarisi öne çıkıyor.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Mardin",
+    "experience": "Mardin'in taş evleri ve tarihi dokusu gerçekten büyüleyici. Şehrin tepeden görünümü, dar sokakları, tarihi yapılarıyla unutulmaz bir deneyim yaşadım."
+  },
+  {
+    "id": "hatay",
+    "name": "Hatay",
+    "description": "Antakya olarak da bilinen, tarihi ve kültürel zenginliği olan şehir. St. Pierre Kilisesi ve mozaik müzesi ünlü.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Hatay",
+    "experience": "Hatay'ın tarihi dokusu ve kültürel zenginliği beni çok etkiledi. St. Pierre Kilisesi, mozaik müzesi, tarihi sokaklarıyla unutulmaz anılar biriktirdim."
+  },
+  {
+    "id": "bursa",
+    "name": "Bursa",
+    "description": "Osmanlı'nın ilk başkenti, tarihi ve doğal güzellikleriyle ünlü şehir. Uludağ ve tarihi yapıları öne çıkıyor.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Bursa",
+    "experience": "Bursa'nın tarihi dokusu ve doğal güzellikleri muhteşem. Uludağ'ın manzarası, tarihi camiler, İskender kebabı... Her şey mükemmeldi."
+  },
+  {
+    "id": "kocaeli",
+    "name": "Kocaeli",
+    "description": "İzmit olarak da bilinen, Marmara Denizi kıyısında yer alan sanayi ve ticaret şehri.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Kocaeli",
+    "experience": "Kocaeli'nin deniz manzarası ve modern yapısı beni etkiledi. Sahil boyunca yürüyüşler, tarihi yapılarıyla güzel anılar biriktirdim."
+  },
+  {
+    "id": "sakarya",
+    "name": "Sakarya",
+    "description": "Adapazarı olarak da bilinen, doğal güzellikleri ve tarım alanlarıyla ünlü şehir.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Sakarya",
+    "experience": "Sakarya'nın doğal güzellikleri ve yeşil alanları beni çok etkiledi. Sapanca Gölü'nün huzur verici ortamı, tarihi yapılarıyla güzel anılar."
+  },
+  {
+    "id": "bolu",
+    "name": "Bolu",
+    "description": "Doğal güzellikleri ve ormanlarıyla ünlü, Abant Gölü ve Yedigöller ile öne çıkan şehir.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Bolu",
+    "experience": "Bolu'nun doğal güzellikleri gerçekten muhteşem. Abant Gölü'nün manzarası, Yedigöller'in huzuru, ormanların temiz havası unutulmaz."
+  },
+  {
+    "id": "edirne",
+    "name": "Edirne",
+    "description": "Osmanlı'nın eski başkenti, tarihi yapıları ve kültürel zenginliğiyle ünlü şehir. Selimiye Camii öne çıkıyor.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Edirne",
+    "experience": "Edirne'nin tarihi dokusu ve Selimiye Camii'nin görkemi beni çok etkiledi. Osmanlı mimarisinin en güzel örneklerini görmek muhteşemdi."
+  },
+  {
+    "id": "ankara",
+    "name": "Ankara",
+    "description": "Türkiye'nin başkenti, tarihi ve modern yapısıyla öne çıkan şehir. Anıtkabir ve müzeleri ünlü.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Ankara",
+    "experience": "Ankara'nın başkent olmanın verdiği ciddiyeti ve tarihi önemi beni çok etkiledi. Anıtkabir'in görkemi, müzelerin zenginliği, modern yapısıyla unutulmaz."
+  },
+  {
+    "id": "konya",
+    "name": "Konya",
+    "description": "Mevlana'nın şehri, tasavvuf kültürünün merkezi. Tarihi yapıları ve kültürel önemi büyük.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Konya",
+    "experience": "Konya'nın mistik atmosferi ve Mevlana'nın şehri olmanın verdiği huzur beni çok etkiledi. Mevlana Müzesi, tarihi yapılarıyla unutulmaz anılar."
+  },
+  {
+    "id": "aksaray",
+    "name": "Aksaray",
+    "description": "Kapadokya bölgesinde yer alan, tarihi ve doğal güzellikleriyle ünlü şehir.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Aksaray",
+    "experience": "Aksaray'ın Kapadokya bölgesindeki konumu ve doğal güzellikleri beni çok etkiledi. Peri bacaları, tarihi yapılarıyla muhteşem bir deneyim."
+  },
+  {
+    "id": "sivas",
+    "name": "Sivas",
+    "description": "Tarihi İpek Yolu üzerinde yer alan, Selçuklu mimarisi ve tarihi yapılarıyla ünlü şehir.",
+    "image": "https://via.placeholder.com/300x200/4A7C59/FFFFFF?text=Sivas",
+    "experience": "Sivas'ın tarihi dokusu ve Selçuklu mimarisinin güzel örnekleri beni çok etkiledi. Tarihi yapıları, kültürel zenginliğiyle unutulmaz anılar."
+  }
+] 
