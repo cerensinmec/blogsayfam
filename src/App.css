@@ -117,6 +117,52 @@ a:hover {
   .blog-card {
     margin-bottom: 16px;
   }
+
+  /* Mobile specific styles */
+  body {
+    font-size: 14px;
+  }
+
+  .page-wrapper {
+    padding: 16px;
+  }
+
+  .info-container, .home-container {
+    margin: 40px auto;
+    padding: 20px;
+    width: 95%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  .page-wrapper {
+    padding: 12px;
+  }
+
+  .info-container, .home-container {
+    margin: 20px auto;
+    padding: 16px;
+    width: 100%;
+  }
+
+  /* Button adjustments for mobile */
+  button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet specific styles */
+  .info-container, .home-container {
+    width: 90%;
+    max-width: 800px;
+  }
 }
 
 /* Loading and empty states */

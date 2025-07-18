@@ -418,9 +418,9 @@ function BlogPage() {
         display: 'flex', 
         flexDirection: 'column', 
         width: '100%',
-        pr: { xs: 2, md: 4 }, 
-        pl: { xs: 2, md: 4 }, 
-        pt: 4 
+        pr: { xs: 1, sm: 2, md: 4 }, 
+        pl: { xs: 1, sm: 2, md: 4 }, 
+        pt: { xs: 2, md: 4 } 
       }}>
         {/* Header Section */}
         <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -443,12 +443,12 @@ function BlogPage() {
           </Typography>
         </Box>
         {/* Search and Filter Section */}
-        <Box sx={{ mb: 4 }}>
-          <Grid container spacing={3}>
+        <Box sx={{ mb: { xs: 3, md: 4 } }}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid size={12}>
-              <Box sx={{ mb: 0, p: 0, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ mb: 0, p: { xs: 2, md: 3 }, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <Grid container spacing={{ xs: 2, md: 3 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth
                       placeholder="Blog yazılarında ara..."
@@ -460,7 +460,7 @@ function BlogPage() {
                       sx={{ '& .MuiOutlinedInput-root': { '&:hover fieldset': { borderColor: '#8D6E63' } } }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControl fullWidth>
                       <InputLabel>Kategori</InputLabel>
                       <Select
@@ -531,9 +531,9 @@ function BlogPage() {
           </Box>
         ) : (
           <Box sx={{ width: '100%' }}>
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 2, md: 3 }}>
               {filteredPosts.map((post) => (
-                <Grid size={{ xs: 12, md: 6 }} key={post.id}>
+                <Grid size={{ xs: 12, sm: 6 }} key={post.id}>
                   <BlogPostCard
                     post={post}
                     onEdit={handleEditPost}
@@ -572,12 +572,12 @@ function BlogPage() {
       {/* Sidebar */}
       <Box sx={{
         width: { xs: '100%', md: 340 },
-        minWidth: 280,
-        maxWidth: 380,
+        minWidth: { md: 280 },
+        maxWidth: { md: 380 },
         background: '#f3d6ce',
         p: { xs: 1, md: 2 },
         boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)',
-        display: 'flex',
+        display: { xs: 'none', md: 'flex' },
         flexDirection: 'column',
         alignItems: 'center',
         height: { md: '100vh' },
@@ -586,7 +586,6 @@ function BlogPage() {
         justifyContent: 'flex-start',
       }}>
         <BlogSidebar posts={posts} navigate={navigate} />
-        {/* Fazladan TurkeyMap ve şehir blog yazısı gösterimi kaldırıldı */}
       </Box>
     </Box>
   );

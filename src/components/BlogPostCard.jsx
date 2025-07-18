@@ -30,19 +30,19 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       }
     }}
   >
-    <CardContent sx={{ flexGrow: 1, p: 3 }}>
+    <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 3 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
         <Chip
           label={post.category || 'Genel'}
           color={getCategoryColor(post.category)}
           size="small"
           sx={{ 
-            fontSize: '0.75rem',
+            fontSize: { xs: '0.7rem', md: '0.75rem' },
             fontWeight: 500,
             borderRadius: 1
           }}
         />
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
           {formatDate(post.createdAt)}
         </Typography>
       </Box>
@@ -54,7 +54,8 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           fontWeight: 600,
           lineHeight: 1.3,
           mb: 2,
-          color: '#2c3e50'
+          color: '#2c3e50',
+          fontSize: { xs: '1rem', md: '1.25rem' }
         }}
       >
         {post.title}
@@ -70,7 +71,8 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           display: '-webkit-box',
           WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          fontSize: { xs: '0.875rem', md: '0.875rem' }
         }}
       >
         {post.content.length > 120 ? `${post.content.substring(0, 120)}...` : post.content}
@@ -96,7 +98,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       </Box>
     </CardContent>
     
-    <CardActions sx={{ p: 2, pt: 0 }}>
+    <CardActions sx={{ p: { xs: 1.5, md: 2 }, pt: 0 }}>
       <Button 
         size="small" 
         onClick={() => navigate(`/blog/${post.id}`)}
@@ -104,6 +106,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
         sx={{ 
           color: '#8D6E63',
           fontWeight: 500,
+          fontSize: { xs: '0.75rem', md: '0.875rem' },
           '&:hover': {
             backgroundColor: 'rgba(141, 110, 99, 0.08)'
           }
