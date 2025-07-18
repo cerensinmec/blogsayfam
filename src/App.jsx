@@ -53,17 +53,13 @@ function App() {
     minHeight: 60,
     textAlign: 'center',
     padding: 16,
-    position: 'fixed',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1300,
+    marginTop: 'auto',
     boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
   };
 
   const fabStyle = {
     position: 'fixed',
-    bottom: 80,
+    bottom: 24,
     right: 24,
     zIndex: 1400
   };

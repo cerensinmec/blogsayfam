@@ -57,12 +57,14 @@ const FeedPage = () => {
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
       alignItems: 'flex-start',
-      width: '100vw',
-      maxWidth: '100vw',
-      minHeight: '100vh',
+      width: '100%',
+      maxWidth: '100%',
+      minHeight: 'calc(100vh - 120px)',
       gap: 0,
       px: 0,
       py: 0,
+      boxSizing: 'border-box',
+      overflow: 'hidden'
     }}>
       <ActiveAuthors users={users} loading={loading} error={error} handleUserClick={handleUserClick} />
       <BlogPosts posts={posts} loading={loading} error={error} navigate={navigate} formatDate={formatDate} />

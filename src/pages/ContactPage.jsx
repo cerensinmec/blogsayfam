@@ -14,7 +14,7 @@ function ContactPage() {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Paper sx={{ p: { xs: 2, md: 3 } }}>
         <Typography variant="h4" gutterBottom align="center" sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
           İletişim Bilgileri

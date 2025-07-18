@@ -83,21 +83,21 @@ function ProfileEditPage() {
 
   if (loading) {
     return (
-      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 }, textAlign: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)', textAlign: 'center' }}>
         <CircularProgress />
       </Container>
     );
   }
   if (!user) {
     return (
-      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
         <Alert severity="warning">Giriş yapmalısınız.</Alert>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 500 }} sx={{ py: { xs: 4, md: 6 }, pb: { xs: 8, md: 10 }, px: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
         Profilini Düzenle
       </Typography>

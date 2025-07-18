@@ -21,7 +21,7 @@ function KisiselBilgilerPage() {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 8 }, px: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Box sx={{ mb: { xs: 3, md: 4 }, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button 
           variant="outlined" 

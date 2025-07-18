@@ -125,7 +125,7 @@ function Home() {
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   return (
-    <Box sx={{ minHeight: '100vh', background: '#f8e9e6', m: 0, p: 0 }}>
+    <Box sx={{ minHeight: 'calc(100vh - 120px)', background: '#f8e9e6', m: 0, p: 0, width: '100%', overflow: 'hidden' }}>
       <Container maxWidth={false} disableGutters sx={{
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
@@ -133,27 +133,29 @@ function Home() {
         py: 0,
         px: 0,
         m: 0,
-        width: '100vw',
+        width: '100%',
         minWidth: 0,
-        maxWidth: '100vw',
-        gap: 0
+        maxWidth: '100%',
+        gap: 0,
+        boxSizing: 'border-box'
       }}>
         {/* Sol Blok - Sidebar */}
         <Box sx={{
-          width: { xs: '100%', md: 340 },
+          width: { xs: '100%', md: 320 },
           minWidth: 280,
-          maxWidth: 380,
+          maxWidth: 320,
           background: '#f3d6ce',
           p: { xs: 1, md: 2 },
           boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          height: isMdUp ? '100vh' : 'auto',
+          height: isMdUp ? 'calc(100vh - 120px)' : 'auto',
           mb: { xs: 4, md: 0 },
           pl: 0,
           borderRadius: 0,
           justifyContent: 'flex-start',
+          boxSizing: 'border-box'
         }}>
           <HomeSidebar stats={stats} categories={categories} posts={posts} loading={loading} />
         </Box>

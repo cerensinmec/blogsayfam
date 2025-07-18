@@ -24,7 +24,7 @@ const HobilerimPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 'lg' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Typography variant="h4" align="center" gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
         🎨 Hobilerim
       </Typography>

@@ -72,7 +72,7 @@ function MyBlogPage() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Typography variant="h3" align="center" gutterBottom sx={{ mb: 4 }}>
         Blog Sayfam 📝
       </Typography>

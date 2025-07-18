@@ -50,7 +50,7 @@ const MemleketPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 'lg' }} sx={{ py: { xs: 4, md: 6 }, pb: { xs: 6, md: 8 }, px: { xs: 2, md: 3 }, minHeight: '100vh' }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 4, md: 6 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       {/* Header */}
       <Box sx={{ mb: { xs: 3, md: 4 }, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button

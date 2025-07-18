@@ -30,7 +30,7 @@ function BirthPlacePage() {
 
   if (loading) {
     return (
-      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
         <LoadingSpinner message="Şehir bilgileri yükleniyor..." />
       </Container>
     );
@@ -38,7 +38,7 @@ function BirthPlacePage() {
 
   if (error) {
     return (
-      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
         <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -60,7 +60,7 @@ function BirthPlacePage() {
 
   if (!cityInfo || !cityInfo.data) {
     return (
-      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
         <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
           <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Şehir bilgisi bulunamadı.
@@ -71,7 +71,7 @@ function BirthPlacePage() {
   }
 
   return (
-    <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: { xs: 3, md: 4 } }}>
         <Typography variant="h4" gutterBottom align="center" sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
           Doğum Yerim

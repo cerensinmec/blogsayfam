@@ -410,7 +410,9 @@ function BlogPage() {
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
       width: '100%',
-      minHeight: '100vh',
+      minHeight: 'calc(100vh - 120px)',
+      maxWidth: '100vw',
+      overflow: 'hidden'
     }}>
       {/* Ana içerik */}
       <Box sx={{ 
@@ -418,9 +420,11 @@ function BlogPage() {
         display: 'flex', 
         flexDirection: 'column', 
         width: '100%',
-        pr: { xs: 1, sm: 2, md: 4 }, 
-        pl: { xs: 1, sm: 2, md: 4 }, 
-        pt: { xs: 2, md: 4 } 
+        pr: { xs: 1, sm: 2, md: 2 }, 
+        pl: { xs: 1, sm: 2, md: 2 }, 
+        pt: { xs: 2, md: 2 },
+        pb: { xs: 2, md: 2 },
+        boxSizing: 'border-box'
       }}>
         {/* Header Section */}
         <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -571,19 +575,20 @@ function BlogPage() {
       </Box>
       {/* Sidebar */}
       <Box sx={{
-        width: { xs: '100%', md: 340 },
+        width: { xs: '100%', md: 320 },
         minWidth: { md: 280 },
-        maxWidth: { md: 380 },
+        maxWidth: { md: 320 },
         background: '#f3d6ce',
         p: { xs: 1, md: 2 },
         boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)',
         display: { xs: 'none', md: 'flex' },
         flexDirection: 'column',
         alignItems: 'center',
-        height: { md: '100vh' },
+        height: { md: 'calc(100vh - 120px)' },
         mb: { xs: 4, md: 0 },
         borderRadius: 0,
         justifyContent: 'flex-start',
+        boxSizing: 'border-box'
       }}>
         <BlogSidebar posts={posts} navigate={navigate} />
       </Box>
