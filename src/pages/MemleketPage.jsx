@@ -50,9 +50,9 @@ const MemleketPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, pb: 8, minHeight: '100vh' }}>
+    <Container maxWidth={{ xs: 'sm', md: 'lg' }} sx={{ py: { xs: 4, md: 6 }, pb: { xs: 6, md: 8 }, px: { xs: 2, md: 3 }, minHeight: '100vh' }}>
       {/* Header */}
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ mb: { xs: 3, md: 4 }, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
@@ -60,6 +60,7 @@ const MemleketPage = () => {
           sx={{ 
             borderColor: 'primary.main', 
             color: 'primary.main',
+            fontSize: { xs: '0.875rem', md: '1rem' },
             '&:hover': {
               borderColor: 'primary.dark',
               backgroundColor: 'primary.light',
@@ -73,7 +74,8 @@ const MemleketPage = () => {
           color: 'primary.main', 
           fontWeight: 'bold',
           flex: 1,
-          textAlign: 'center'
+          textAlign: 'center',
+          fontSize: { xs: '1.75rem', md: '3rem' }
         }}>
           Memleketim
         </Typography>
@@ -82,8 +84,8 @@ const MemleketPage = () => {
       {/* Personal Introduction */}
       <Typography variant="body1" sx={{ 
         lineHeight: 1.8, 
-        mb: 4, 
-        fontSize: '1.2rem',
+        mb: { xs: 3, md: 4 }, 
+        fontSize: { xs: '1rem', md: '1.2rem' },
         textAlign: 'left',
         color: 'text.primary'
       }}>
@@ -92,8 +94,8 @@ const MemleketPage = () => {
       </Typography>
       <Typography variant="body1" sx={{ 
         lineHeight: 1.8, 
-        mb: 4, 
-        fontSize: '1.2rem',
+        mb: { xs: 3, md: 4 }, 
+        fontSize: { xs: '1rem', md: '1.2rem' },
         textAlign: 'left',
         color: 'text.primary'
       }}>
@@ -102,8 +104,8 @@ const MemleketPage = () => {
       </Typography>
       <Typography variant="body1" sx={{ 
         lineHeight: 1.8, 
-        mb: 4, 
-        fontSize: '1.2rem',
+        mb: { xs: 3, md: 4 }, 
+        fontSize: { xs: '1rem', md: '1.2rem' },
         textAlign: 'left',
         color: 'text.primary'
       }}>
@@ -111,27 +113,24 @@ const MemleketPage = () => {
         tam emin değilim.☺️☺️
       </Typography>
 
-
-
-
-
       {/* Media Gallery Section */}
-      <Paper sx={{ p: 4, mt: 4, backgroundColor: 'background.paper' }}>
+      <Paper sx={{ p: { xs: 2, md: 4 }, mt: { xs: 3, md: 4 }, backgroundColor: 'background.paper' }}>
         <Typography variant="h5" component="h3" sx={{ 
           color: 'primary.main', 
-          mb: 3,
+          mb: { xs: 2, md: 3 },
           fontWeight: 'bold',
           display: 'flex',
           alignItems: 'center',
-          gap: 1
+          gap: 1,
+          fontSize: { xs: '1.25rem', md: '1.5rem' }
         }}>
           <PhotoLibraryIcon />
           Adana'dan Görseller
         </Typography>
         
-        <Grid container spacing={2}>
+        <Grid container spacing={{ xs: 1, md: 2 }}>
           {images.map((img, idx) => (
-            <Grid item xs={12} sm={6} md={3} key={idx}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={idx}>
               <Card 
                 sx={{ 
                   cursor: 'pointer',

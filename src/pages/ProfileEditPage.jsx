@@ -82,19 +82,29 @@ function ProfileEditPage() {
   };
 
   if (loading) {
-    return <Container sx={{ py: 4, textAlign: 'center' }}><CircularProgress /></Container>;
+    return (
+      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 }, textAlign: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
   }
   if (!user) {
-    return <Container sx={{ py: 4 }}><Alert severity="warning">Giriş yapmalısınız.</Alert></Container>;
+    return (
+      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+        <Alert severity="warning">Giriş yapmalısınız.</Alert>
+      </Container>
+    );
   }
 
   return (
-    <Container sx={{ py: 4, pb: 10, maxWidth: 500 }}>
-      <Typography variant="h4" gutterBottom>Profilini Düzenle</Typography>
+    <Container maxWidth={{ xs: 'sm', md: 500 }} sx={{ py: { xs: 4, md: 6 }, pb: { xs: 8, md: 10 }, px: { xs: 2, md: 3 } }}>
+      <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
+        Profilini Düzenle
+      </Typography>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Box component="form" onSubmit={handleSave} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box component="form" onSubmit={handleSave} sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2 } }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Avatar src={profile.photoURL} sx={{ width: 80, height: 80 }} />
+          <Avatar src={profile.photoURL} sx={{ width: { xs: 60, md: 80 }, height: { xs: 60, md: 80 } }} />
         </Box>
         <TextField
           label="Ad Soyad"
@@ -102,6 +112,7 @@ function ProfileEditPage() {
           value={profile.displayName}
           onChange={handleChange}
           fullWidth
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
         <TextField
           label="Biyografi"
@@ -111,6 +122,7 @@ function ProfileEditPage() {
           fullWidth
           multiline
           rows={3}
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
         <TextField
           label="Okul"
@@ -118,6 +130,7 @@ function ProfileEditPage() {
           value={profile.school}
           onChange={handleChange}
           fullWidth
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
         <TextField
           label="Doğum Yeri"
@@ -125,6 +138,7 @@ function ProfileEditPage() {
           value={profile.birthPlace}
           onChange={handleChange}
           fullWidth
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
         <TextField
           label="Profil Fotoğrafı URL"
@@ -132,8 +146,17 @@ function ProfileEditPage() {
           value={profile.photoURL}
           onChange={handleChange}
           fullWidth
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
-        <Button type="submit" variant="contained" disabled={saving}>
+        <Button 
+          type="submit" 
+          variant="contained" 
+          disabled={saving}
+          sx={{ 
+            fontSize: { xs: '0.875rem', md: '1rem' },
+            py: { xs: 1, md: 1.5 }
+          }}
+        >
           {saving ? 'Kaydediliyor...' : 'Kaydet'}
         </Button>
       </Box>

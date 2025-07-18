@@ -30,7 +30,7 @@ function BirthPlacePage() {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
         <LoadingSpinner message="Şehir bilgileri yükleniyor..." />
       </Container>
     );
@@ -38,14 +38,18 @@ function BirthPlacePage() {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
+      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+        <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
           <Button 
             variant="contained" 
             onClick={() => window.location.reload()}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', md: '1rem' }
+            }}
           >
             Tekrar Dene
           </Button>
@@ -56,9 +60,9 @@ function BirthPlacePage() {
 
   if (!cityInfo || !cityInfo.data) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="text.secondary">
+      <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+        <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
+          <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Şehir bilgisi bulunamadı.
           </Typography>
         </Paper>
@@ -67,15 +71,15 @@ function BirthPlacePage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h4" gutterBottom align="center">
+    <Container maxWidth={{ xs: 'sm', md: 'md' }} sx={{ py: { xs: 4, md: 6 }, px: { xs: 2, md: 3 } }}>
+      <Paper sx={{ p: { xs: 2, md: 3 }, mb: { xs: 3, md: 4 } }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
           Doğum Yerim
         </Typography>
         {/* Şehir bilgileri varsa göster */}
         {cityInfo && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6">Şehir: Adana</Typography>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>Şehir: Adana</Typography>
             {/* Diğer şehir bilgileri buraya eklenebilir */}
           </Box>
         )}
