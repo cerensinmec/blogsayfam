@@ -23,7 +23,7 @@ function BirthPlacePage() {
       })
       .catch((error) => {
         console.error("API'den şehir verisi alınamadı:", error);
-        setError("Şehir bilgileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+        setError("Şehir bilgileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin..");
       })
       .finally(() => setLoading(false));
   }, []);
