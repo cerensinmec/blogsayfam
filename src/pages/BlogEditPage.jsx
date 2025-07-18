@@ -199,7 +199,7 @@ function BlogEditPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, pb: 10 }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       {/* Breadcrumbs */}
       <Breadcrumbs sx={{ mb: 3 }}>
         <Link component={RouterLink} to="/" color="inherit" underline="hover">

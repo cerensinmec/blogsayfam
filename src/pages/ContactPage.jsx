@@ -14,9 +14,9 @@ function ContactPage() {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom align="center">
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+      <Paper sx={{ p: { xs: 2, md: 3 } }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
           İletişim Bilgileri
         </Typography>
 
@@ -24,18 +24,31 @@ function ContactPage() {
           <InfoRow key={index} label={item.label} value={item.value} />
         ))}
         
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          gap: { xs: 2, sm: 0 },
+          mt: 4 
+        }}>
           <Button 
             variant="outlined" 
             onClick={() => navigate('/dogumyeri')}
+            fullWidth={false}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              mb: { xs: 1, sm: 0 }
+            }}
           >
             Önceki Sayfa
           </Button>
           <Button 
-            variant="outlined" 
+            variant="contained" 
             onClick={() => navigate('/')}
+            fullWidth={false}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
-            Sonraki Sayfa
+            Ana Sayfa
           </Button>
         </Box>
       </Paper>

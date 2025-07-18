@@ -21,25 +21,31 @@ function KisiselBilgilerPage() {
   const navigate = useNavigate();
 
   return (
-    <Container sx={{ py: 8 }}>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+      <Box sx={{ mb: { xs: 3, md: 4 }, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button 
           variant="outlined" 
           onClick={() => navigate('/blogsayfam')}
-          sx={{ mb: 2 }}
+          sx={{ 
+            mb: { xs: 1, md: 2 },
+            fontSize: { xs: '0.875rem', md: '1rem' }
+          }}
         >
           ← Geri Dön
         </Button>
       </Box>
       
-      <Typography variant="h3" align="center" gutterBottom sx={{ mb: 6 }}>
+      <Typography variant="h3" align="center" gutterBottom sx={{ 
+        mb: { xs: 4, md: 6 },
+        fontSize: { xs: '1.75rem', md: '3rem' }
+      }}>
         👤 Kişisel Bilgiler
       </Typography>
       
       <Box sx={{ 
         maxWidth: 600, 
         mx: 'auto', 
-        p: 4, 
+        p: { xs: 2, md: 4 }, 
         bgcolor: 'background.paper', 
         borderRadius: 2, 
         boxShadow: 2 

@@ -35,7 +35,7 @@ function School() {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
         <LoadingSpinner message="Okul bilgileri yükleniyor..." />
       </Container>
     );
@@ -43,17 +43,21 @@ function School() {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="error" gutterBottom>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+        <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Hata
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.875rem', md: '1rem' } }}>
             {error}
           </Typography>
           <Button 
             variant="contained" 
             onClick={() => window.location.reload()}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', md: '1rem' }
+            }}
           >
             Tekrar Dene
           </Button>
@@ -64,9 +68,9 @@ function School() {
 
   if (!school) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="text.secondary">
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+        <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: 'center' }}>
+          <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
             Okul bilgisi bulunamadı.
           </Typography>
         </Paper>
@@ -75,9 +79,9 @@ function School() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom align="center">
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+      <Paper sx={{ p: { xs: 2, md: 3 } }}>
+        <Typography variant="h4" gutterBottom align="center" sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
           {school.name}
         </Typography>
         
@@ -96,7 +100,10 @@ function School() {
           </Box>
         )}
         
-        <Typography variant="body1" paragraph sx={{ lineHeight: 1.6 }}>
+        <Typography variant="body1" paragraph sx={{ 
+          lineHeight: 1.6, 
+          fontSize: { xs: '0.875rem', md: '1rem' } 
+        }}>
           {school.description}
         </Typography>
         
@@ -106,22 +113,41 @@ function School() {
             href={school.link}
             target="_blank"
             rel="noopener noreferrer"
-            sx={{ mr: 2 }}
+            sx={{ 
+              mr: { xs: 0, sm: 2 },
+              mb: { xs: 1, sm: 0 },
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', md: '1rem' }
+            }}
           >
             Daha Fazla Bilgi
           </Button>
         </Box>
         
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          gap: { xs: 2, sm: 0 },
+          mt: 4 
+        }}>
           <Button 
             variant="outlined" 
             onClick={() => navigate('/bilgiler')}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', md: '1rem' }
+            }}
           >
             Önceki Sayfa
           </Button>
           <Button 
             variant="outlined" 
             onClick={() => navigate('/dogumyeri')}
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', md: '1rem' }
+            }}
           >
             Sonraki Sayfa
           </Button>

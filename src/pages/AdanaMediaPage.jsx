@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, Modal } from '@mui/material';
+import { Box, Typography, Button, Modal, Container, Grid, Card, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const images = [
@@ -38,51 +38,62 @@ function AdanaMediaPage() {
   const [openIdx, setOpenIdx] = useState(null);
 
   return (
-    <div className="page-wrapper">
-      <div className="info-container">
-        <Typography variant="h4" gutterBottom>Adana ile İlgili Medya</Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'nowrap' }}>
-            {images.slice(0, 4).map((img, idx) => (
-              <img
-                key={idx}
-                src={img.src}
-                alt={`adana-media-${idx}`}
-                style={{ width: '100%', maxWidth: 220, maxHeight: 180, objectFit: 'cover', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', cursor: 'pointer' }}
-                onClick={() => setOpenIdx(idx)}
-              />
-            ))}
-          </Box>
-          <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'nowrap' }}>
-            {images.slice(4).map((img, idx) => (
-              <img
-                key={idx+4}
-                src={img.src}
-                alt={`adana-media-${idx+4}`}
-                style={{ width: '100%', maxWidth: 220, maxHeight: 180, objectFit: 'cover', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', cursor: 'pointer' }}
-                onClick={() => setOpenIdx(idx+4)}
-              />
-            ))}
-          </Box>
-        </Box>
-        <Modal open={openIdx !== null} onClose={() => setOpenIdx(null)}>
-          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2, outline: 'none', maxWidth: 600, width: '90%' }}>
-            {openIdx !== null && (
-              <>
-                <img src={images[openIdx].src} alt={`adana-media-large-${openIdx}`} style={{ width: '100%', maxHeight: 400, objectFit: 'contain', borderRadius: 8, marginBottom: 16 }} />
-                <Typography variant="body1" align="center">{images[openIdx].desc}</Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                  <Button variant="contained" onClick={() => setOpenIdx(null)}>Kapat</Button>
-                </Box>
-              </>
-            )}
-          </Box>
-        </Modal>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-          <Button variant="contained" onClick={() => navigate(-1)}>Geri Dön</Button>
-        </div>
-      </div>
-    </div>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>
+        📸 Adana Medya Galerisi
+      </Typography>
+      
+      <Grid container spacing={{ xs: 2, md: 3 }}>
+        {images.map((item, index) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+            <Card sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column',
+              p: { xs: 2, md: 3 }
+            }}>
+              <CardContent sx={{ flexGrow: 1, p: { xs: 1, md: 2 } }}>
+                <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}>
+                  {item.desc}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
+                  {item.desc}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+      
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'center', 
+        gap: { xs: 2, sm: 3 },
+        mt: 4 
+      }}>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/blogsayfam')}
+          sx={{ 
+            width: { xs: '100%', sm: 'auto' },
+            fontSize: { xs: '0.875rem', md: '1rem' }
+          }}
+        >
+          Blog Sayfama Dön
+        </Button>
+        <Button 
+          variant="outlined" 
+          onClick={() => navigate('/')}
+          sx={{ 
+            width: { xs: '100%', sm: 'auto' },
+            fontSize: { xs: '0.875rem', md: '1rem' }
+          }}
+        >
+          Ana Sayfa
+        </Button>
+      </Box>
+    </Container>
   );
 }
 

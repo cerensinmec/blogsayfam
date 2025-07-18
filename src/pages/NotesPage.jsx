@@ -130,8 +130,8 @@ function NotesPage() {
   const displayName = user.displayName || user.email || 'Kullanıcı';
 
   return (
-    <Container maxWidth="sm" sx={{ py: 6, pb: 8, minHeight: '100vh' }}>
-      <Typography variant="h4" align="center" gutterBottom>Notlarım</Typography>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 4, md: 6 }, minHeight: 'calc(100vh - 120px)', px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.125rem' } }}>Notlarım</Typography>
       
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -176,9 +176,9 @@ function NotesPage() {
             </Typography>
           </Paper>
         ) : (
-          <Grid container spacing={2}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             {notes.map(note => (
-              <Grid item xs={12} key={note.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={note.id}>
                 <Paper sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', flex: 1, pr: 2 }}>{note.title}</Typography>
