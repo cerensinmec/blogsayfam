@@ -8,36 +8,36 @@ function HomeSidebar({ stats, categories, posts, loading }) {
   return (
     <>
       {/* İstatistikler */}
-      <Paper sx={{ p: 2, mb: 2, width: '100%', background: '#fff' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>İSTATİSTİKLER</Typography>
+      <Paper sx={{ p: { xs: 1.5, md: 2 }, mb: { xs: 1.5, md: 2 }, width: '100%', background: '#fff' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>İSTATİSTİKLER</Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
           <Box sx={{ textAlign: 'center' }}>
-            <TrendingUp sx={{ fontSize: 24, color: 'primary.main', mb: 0.5 }} />
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>{stats.posts}</Typography>
-            <Typography variant="caption" color="text.secondary">Blog</Typography>
+            <TrendingUp sx={{ fontSize: { xs: 20, md: 24 }, color: 'primary.main', mb: 0.5 }} />
+            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>{stats.posts}</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.625rem', md: '0.75rem' } }}>Blog</Typography>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
-            <People sx={{ fontSize: 24, color: 'secondary.main', mb: 0.5 }} />
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>{stats.users}</Typography>
-            <Typography variant="caption" color="text.secondary">Yazar</Typography>
+            <People sx={{ fontSize: { xs: 20, md: 24 }, color: 'secondary.main', mb: 0.5 }} />
+            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>{stats.users}</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.625rem', md: '0.75rem' } }}>Yazar</Typography>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
-            <Favorite sx={{ fontSize: 24, color: 'error.main', mb: 0.5 }} />
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>{stats.views}</Typography>
-            <Typography variant="caption" color="text.secondary">Görüntüleme</Typography>
+            <Favorite sx={{ fontSize: { xs: 20, md: 24 }, color: 'error.main', mb: 0.5 }} />
+            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>{stats.views}</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.625rem', md: '0.75rem' } }}>Görüntüleme</Typography>
           </Box>
         </Box>
       </Paper>
       {/* Kategoriler */}
-      <Paper sx={{ p: 2, mb: 2, width: '100%', background: '#fff' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>KATEGORİLER</Typography>
+      <Paper sx={{ p: { xs: 1.5, md: 2 }, mb: { xs: 1.5, md: 2 }, width: '100%', background: '#fff' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>KATEGORİLER</Typography>
         <Grid container spacing={1}>
           {categories.map((category) => (
             <Grid item xs={6} key={category.name}>
               <Card 
                 sx={{ 
                   textAlign: 'center', 
-                  p: 1, 
+                  p: { xs: 0.5, md: 1 }, 
                   cursor: 'pointer',
                   background: '#f9f9f9',
                   borderRadius: 2,
@@ -46,10 +46,10 @@ function HomeSidebar({ stats, categories, posts, loading }) {
                 }}
                 onClick={() => navigate(category.path)}
               >
-                <Typography variant="h5" sx={{ mb: 0.5 }}>
+                <Typography variant="h5" sx={{ mb: 0.5, fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
                   {category.icon}
                 </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 'medium', color: 'primary.main' }}>
+                <Typography variant="caption" sx={{ fontWeight: 'medium', color: 'primary.main', fontSize: { xs: '0.625rem', md: '0.75rem' } }}>
                   {category.name}
                 </Typography>
               </Card>
@@ -58,8 +58,8 @@ function HomeSidebar({ stats, categories, posts, loading }) {
         </Grid>
       </Paper>
       {/* Öne Çıkan Bloglar */}
-      <Paper sx={{ p: 2, width: '100%', background: '#fff' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>ÖNE ÇIKAN YAZILAR</Typography>
+      <Paper sx={{ p: { xs: 1.5, md: 2 }, width: '100%', background: '#fff' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>ÖNE ÇIKAN YAZILAR</Typography>
         {loading ? (
           <Box sx={{ textAlign: 'center', py: 2 }}>
             <CircularProgress size={20} />
@@ -73,19 +73,19 @@ function HomeSidebar({ stats, categories, posts, loading }) {
             {posts.map((post) => (
               <Card 
                 key={post.id} 
-                sx={{ mb: 1.5, cursor: 'pointer', background: '#f9f9f9', borderRadius: 2, '&:hover': { background: '#f3d6ce' } }}
+                sx={{ mb: { xs: 1, md: 1.5 }, cursor: 'pointer', background: '#f9f9f9', borderRadius: 2, '&:hover': { background: '#f3d6ce' } }}
                 onClick={() => navigate(`/blog/${post.id}`)}
               >
-                <CardContent sx={{ p: 1.5 }}>
+                <CardContent sx={{ p: { xs: 1, md: 1.5 } }}>
                   <Chip 
                     label={post.category || 'Genel'} 
                     size="small" 
-                    sx={{ mb: 0.5 }}
+                    sx={{ mb: 0.5, fontSize: { xs: '0.625rem', md: '0.75rem' } }}
                   />
-                  <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 0.5, color: 'primary.main' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 0.5, color: 'primary.main', fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
                     {post.title}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.625rem', md: '0.75rem' } }}>
                     {post.createdAt
                       ? (post.createdAt.toDate
                           ? new Date(post.createdAt.toDate()).toLocaleDateString('tr-TR')
