@@ -1,8 +1,9 @@
 body {
   font-family: 'Roboto', Arial, sans-serif;
   margin: 0;
-  background-color: #fff0f6;
-  color: #330014;
+  background-color: #F3EDE7;
+  color: #3E2723;
+  line-height: 1.6;
 }
 
 .page-wrapper {
@@ -19,8 +20,42 @@ body {
   max-width: 600px;
 }
 
+/* Blog specific styles */
+.blog-container {
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+.blog-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.blog-title {
+  font-weight: 700;
+  color: #2c3e50;
+  line-height: 1.3;
+}
+
+.blog-content {
+  color: #5a6c7d;
+  line-height: 1.7;
+}
+
+.blog-meta {
+  color: #7f8c8d;
+  font-size: 0.875rem;
+}
+
+/* Button styles */
 button {
-  background-color: #1976d2;
+  background-color: #8D6E63;
   color: white;
   padding: 12px 24px;
   border: none;
@@ -28,31 +63,118 @@ button {
   margin-top: 20px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 3px 8px rgba(25, 118, 210, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(141, 110, 99, 0.2);
+  font-weight: 500;
 }
 
 button:hover {
-  background-color: #0d1a4a;
-  box-shadow: 0 5px 15px rgba(13, 26, 74, 0.2);
+  background-color: #6D4C41;
+  box-shadow: 0 5px 15px rgba(109, 76, 65, 0.3);
+  transform: translateY(-1px);
 }
 
 .back-button {
-  background-color: #1565c0;
+  background-color: #A1887F;
 }
 
 .back-button:hover {
-  background-color: #0d1a4a;
+  background-color: #8D6E63;
 }
 
+/* Link styles */
 a {
-  color: #1976d2;
+  color: #6D4C41;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #0d1a4a;
+  color: #4E342E;
   text-decoration: underline;
+}
+
+/* Search and filter styles */
+.search-filter-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e8e8e8;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .blog-container {
+    padding: 16px;
+  }
+  
+  .search-filter-container {
+    padding: 16px;
+  }
+  
+  .blog-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Loading and empty states */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+}
+
+.empty-state h6 {
+  color: #7f8c8d;
+  margin-bottom: 16px;
+}
+
+/* Category chips */
+.category-chip {
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+/* Author info */
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.author-avatar {
+  width: 28px;
+  height: 28px;
+  background-color: #8D6E63;
+  font-size: 0.875rem;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease;
+}
+
+/* Focus states for accessibility */
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid #8D6E63;
+  outline-offset: 2px;
+}
+
+.city {
+  fill: #b3e0ff;
+  stroke: #003366;
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill 0.2s;
+}
+.city:hover {
+  fill: #1976d2;
 }

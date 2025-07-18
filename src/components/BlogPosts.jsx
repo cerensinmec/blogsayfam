@@ -26,7 +26,7 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => (
     ) : (
       <Grid container spacing={3}>
         {posts.map((post) => (
-          <Grid item xs={12} md={6} key={post.id}>
+          <Grid size={{ xs: 12, md: 6 }} key={post.id}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Chip 

@@ -14,6 +14,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfi
 import { auth, db } from '../firebase/config';
 import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import CloseIcon from '@mui/icons-material/Close';
+import { getFirebaseErrorMessage, logError } from '../utils/errorHandler';
 
 function AuthForm({ open, onClose, onAuthSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -50,7 +51,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
 
       return { isUnique: true };
     } catch (error) {
-      console.error('Benzersizlik kontrolü hatası:', error);
+      logError(error, 'Benzersizlik kontrolü');
       return { isUnique: false, field: 'general', message: 'Kontrol sırasında bir hata oluştu.' };
     } finally {
       setValidating(false);
@@ -101,20 +102,8 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
       onAuthSuccess();
       onClose();
     } catch (error) {
-      console.error('Auth error:', error);
-      if (error.code === 'auth/email-already-in-use') {
-        setError('Bu e-posta adresi zaten kullanımda. Lütfen giriş yapmayı deneyin.');
-      } else if (error.code === 'auth/user-not-found') {
-        setError('Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.');
-      } else if (error.code === 'auth/wrong-password') {
-        setError('Hatalı şifre.');
-      } else if (error.code === 'auth/weak-password') {
-        setError('Şifre en az 6 karakter olmalıdır.');
-      } else if (error.code === 'auth/invalid-email') {
-        setError('Geçersiz e-posta adresi.');
-      } else {
-        setError('Bir hata oluştu. Lütfen tekrar deneyin.');
-      }
+      logError(error, 'Kimlik doğrulama');
+      setError(getFirebaseErrorMessage(error.code));
     } finally {
       setLoading(false);
     }
@@ -180,7 +169,15 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent dividers sx={{ p: 3, bgcolor: '#fff' }}>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ mb: 2 }} 
+              onClose={() => setError('')}
+            >
+              {error}
+            </Alert>
+          )}
           
           {!isLogin && (
             <>
@@ -194,6 +191,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 onChange={(e) => setFirstName(e.target.value)}
                 required={!isLogin}
                 sx={{ mb: 1 }}
+                disabled={loading || validating}
               />
               <TextField
                 margin="dense"
@@ -204,6 +202,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 onChange={(e) => setLastName(e.target.value)}
                 required={!isLogin}
                 sx={{ mb: 1 }}
+                disabled={loading || validating}
               />
               <TextField
                 margin="dense"
@@ -215,6 +214,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 required={!isLogin}
                 sx={{ mb: 1 }}
                 helperText="Benzersiz bir kullanıcı adı seçin"
+                disabled={loading || validating}
               />
             </>
           )}
@@ -229,6 +229,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             required
             sx={{ mb: 1 }}
             helperText={!isLogin ? "Benzersiz bir e-posta adresi kullanın" : ""}
+            disabled={loading || validating}
           />
           <TextField
             margin="dense"
@@ -240,6 +241,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             required
             sx={{ mb: 1 }}
             helperText={!isLogin ? "En az 6 karakter olmalıdır" : ""}
+            disabled={loading || validating}
           />
         </DialogContent>
         <DialogActions sx={{ 
@@ -249,39 +251,23 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
           gap: 2
         }}>
           <Button 
-            onClick={toggleMode}
-            variant="contained"
-            sx={{
-              bgcolor: '#4E342E',
-              color: '#fff',
-              '&:hover': {
-                bgcolor: '#260e04',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 12px rgba(78, 52, 46, 0.3)',
-              }
-            }}
+            onClick={toggleMode} 
+            disabled={loading || validating}
+            sx={{ color: '#4E342E' }}
           >
-            {isLogin ? 'Hesap oluştur' : 'Zaten hesabım var'}
+            {isLogin ? 'Hesap Oluştur' : 'Giriş Yap'}
           </Button>
           <Button 
             type="submit" 
             variant="contained" 
             disabled={loading || validating}
-            sx={{
+            sx={{ 
               bgcolor: '#4E342E',
-              color: '#fff',
-              '&:hover': { 
-                bgcolor: '#260e04',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 12px rgba(78, 52, 46, 0.3)',
-              },
-              '&:disabled': {
-                bgcolor: '#BCAAA4',
-                color: '#fff',
-              }
+              '&:hover': { bgcolor: '#260e04' },
+              '&:disabled': { bgcolor: 'rgba(78, 52, 46, 0.5)' }
             }}
           >
-            {loading || validating ? 'İşleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
+            {loading ? 'İşleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
           </Button>
         </DialogActions>
       </form>

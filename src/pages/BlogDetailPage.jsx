@@ -31,6 +31,7 @@ import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import AuthorInfoCard from '../components/AuthorInfoCard';
 import ShareButtons from '../components/ShareButtons';
 import RelatedPostsList from '../components/RelatedPostsList';
+import TurkeyMap from "../components/TurkeyMap";
 
 function BlogDetailPage() {
   const [post, setPost] = useState(null);
@@ -70,8 +71,8 @@ function BlogDetailPage() {
       console.log('Firestore doc referansı:', postId);
       const postRef = doc(db, 'blog-posts', postId);
       const postSnap = await getDoc(postRef);
-      const querySnapshot = await getDocs(collection(db, "blog-posts"));
-console.log('querySnapshot',querySnapshot);
+      const querySnapshot = await collection(db, "blog-posts");
+      console.log('querySnapshot',querySnapshot);
  
       console.log('postSnap ','postId',postSnap,postId);
       if (postSnap.exists()) {
@@ -355,6 +356,7 @@ console.log('querySnapshot',querySnapshot);
             navigate={navigate}
             formatDate={formatDate}
           />
+          <TurkeyMap />
         </Grid>
       </Grid>
     </Container>

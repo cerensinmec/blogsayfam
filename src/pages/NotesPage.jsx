@@ -13,9 +13,10 @@ import {
 import { db } from '../firebase/config';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/config';
-import { Container, Typography, Box, TextField, Button, Paper, IconButton, Grid, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Container, Typography, Box, TextField, Button, Paper, IconButton, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 function NotesPage() {
   const [user] = useAuthState(auth);
@@ -27,6 +28,7 @@ function NotesPage() {
   const [editNoteId, setEditNoteId] = useState(null);
   const [editNoteTitle, setEditNoteTitle] = useState('');
   const [editNoteContent, setEditNoteContent] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!user) return;
@@ -36,6 +38,11 @@ function NotesPage() {
       const notesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setNotes(notesData.sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds));
       setLoading(false);
+      setError(null);
+    }, (error) => {
+      console.error('Notlar yüklenirken hata:', error);
+      setError('Notlarınız yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
+      setLoading(false);
     });
     return () => unsubscribe();
   }, [user]);
@@ -43,6 +50,7 @@ function NotesPage() {
   const handleAddNote = async (e) => {
     e.preventDefault();
     if (!newNoteTitle.trim() || !newNote.trim()) return;
+    
     try {
       await addDoc(collection(db, 'notes'), {
         title: newNoteTitle,
@@ -53,14 +61,22 @@ function NotesPage() {
       });
       setNewNote('');
       setNewNoteTitle('');
+      setError(null);
     } catch (error) {
-      alert('Not eklenirken hata oluştu!');
+      console.error('Not eklenirken hata:', error);
+      setError('Not eklenirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Bu notu silmek istediğine emin misin?')) {
-      await deleteDoc(doc(db, 'notes', id));
+      try {
+        await deleteDoc(doc(db, 'notes', id));
+        setError(null);
+      } catch (error) {
+        console.error('Not silinirken hata:', error);
+        setError('Not silinirken bir hata oluştu. Lütfen tekrar deneyin.');
+      }
     }
   };
 
@@ -80,7 +96,7 @@ function NotesPage() {
 
   const handleEditSave = async () => {
     if (!editNoteTitle.trim() || !editNoteContent.trim()) {
-      alert('Başlık ve içerik boş olamaz!');
+      setError('Başlık ve içerik boş olamaz!');
       return;
     }
     
@@ -94,9 +110,10 @@ function NotesPage() {
       setEditNoteId(null);
       setEditNoteTitle('');
       setEditNoteContent('');
+      setError(null);
     } catch (error) {
       console.error('Not güncellenirken hata:', error);
-      alert('Not güncellenirken hata oluştu!');
+      setError('Not güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
   };
 
@@ -115,6 +132,13 @@ function NotesPage() {
   return (
     <Container maxWidth="sm" sx={{ py: 6, pb: 8, minHeight: '100vh' }}>
       <Typography variant="h4" align="center" gutterBottom>Notlarım</Typography>
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+      
       <Paper sx={{ p: 3, mb: 4 }}>
         <form onSubmit={handleAddNote}>
           <TextField
@@ -138,11 +162,19 @@ function NotesPage() {
           </Button>
         </form>
       </Paper>
+      
       <Box>
         {loading ? (
-          <Typography align="center">Yükleniyor...</Typography>
+          <LoadingSpinner message="Notlarınız yükleniyor..." />
         ) : notes.length === 0 ? (
-          <Typography align="center">Henüz notunuz yok.</Typography>
+          <Paper sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="h6" color="text.secondary">
+              Henüz notunuz yok.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              İlk notunuzu yukarıdaki formu kullanarak ekleyebilirsiniz.
+            </Typography>
+          </Paper>
         ) : (
           <Grid container spacing={2}>
             {notes.map(note => (
@@ -168,6 +200,7 @@ function NotesPage() {
           </Grid>
         )}
       </Box>
+      
       <Dialog open={editDialogOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
         <DialogTitle>Notu Düzenle</DialogTitle>
         <DialogContent>
@@ -177,23 +210,19 @@ function NotesPage() {
             onChange={e => setEditNoteTitle(e.target.value)}
             fullWidth
             sx={{ mb: 2, mt: 1 }}
-            required
           />
           <TextField
-            label="Notunuz"
+            label="İçerik"
             value={editNoteContent}
             onChange={e => setEditNoteContent(e.target.value)}
             fullWidth
             multiline
             minRows={4}
-            required
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleEditClose} color="inherit">İptal</Button>
-          <Button onClick={handleEditSave} variant="contained" color="primary">
-            Kaydet
-          </Button>
+          <Button onClick={handleEditClose}>İptal</Button>
+          <Button onClick={handleEditSave} variant="contained">Kaydet</Button>
         </DialogActions>
       </Dialog>
     </Container>

@@ -29,7 +29,10 @@ const theme = createTheme({
       main: '#F39C12',
     },
     info: {
-      main: '#3498DB',
+      main: '#8D6E63', // kahverengi tonu
+      light: '#BCAAA4',
+      dark: '#5f4339',
+      contrastText: '#fff',
     },
     success: {
       main: '#27AE60',

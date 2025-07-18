@@ -7,51 +7,140 @@ import {
   Button,
   Chip,
   Box,
-  Avatar
+  Avatar,
+  Divider
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon, ReadMore as ReadMoreIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 
 const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, user, navigate }) => (
-  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-    <CardContent sx={{ flexGrow: 1 }}>
-      <Chip
-        label={post.category || 'Genel'}
-        color={getCategoryColor(post.category)}
-        size="small"
-        sx={{ mb: 2 }}
-      />
-      <Typography variant="h6" gutterBottom>
+  <Card 
+    sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      width: '100%',
+      border: '1px solid #e0e0e0',
+      borderRadius: 2,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      transition: 'all 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+        transform: 'translateY(-2px)'
+      }
+    }}
+  >
+    <CardContent sx={{ flexGrow: 1, p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        <Chip
+          label={post.category || 'Genel'}
+          color={getCategoryColor(post.category)}
+          size="small"
+          sx={{ 
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            borderRadius: 1
+          }}
+        />
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+          {formatDate(post.createdAt)}
+        </Typography>
+      </Box>
+      
+      <Typography 
+        variant="h6" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 600,
+          lineHeight: 1.3,
+          mb: 2,
+          color: '#2c3e50'
+        }}
+      >
         {post.title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" paragraph>
-        {post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content}
+      
+      <Typography 
+        variant="body2" 
+        color="text.secondary" 
+        paragraph
+        sx={{ 
+          lineHeight: 1.6,
+          mb: 3,
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
+        }}
+      >
+        {post.content.length > 120 ? `${post.content.substring(0, 120)}...` : post.content}
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <Avatar src={post.authorPhotoURL} sx={{ width: 24, height: 24 }}>
+      
+      <Divider sx={{ my: 2 }} />
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Avatar 
+          src={post.authorPhotoURL} 
+          sx={{ 
+            width: 28, 
+            height: 28,
+            fontSize: '0.875rem',
+            bgcolor: '#8D6E63'
+          }}
+        >
           {post.authorName?.charAt(0)}
         </Avatar>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
           {post.authorName}
         </Typography>
       </Box>
-      <Typography variant="caption" color="text.secondary">
-        {formatDate(post.createdAt)}
-      </Typography>
     </CardContent>
-    <CardActions>
-      <Button size="small" onClick={() => navigate(`/blog/${post.id}`)}>
+    
+    <CardActions sx={{ p: 2, pt: 0 }}>
+      <Button 
+        size="small" 
+        onClick={() => navigate(`/blog/${post.id}`)}
+        startIcon={<ReadMoreIcon />}
+        sx={{ 
+          color: '#8D6E63',
+          fontWeight: 500,
+          '&:hover': {
+            backgroundColor: 'rgba(141, 110, 99, 0.08)'
+          }
+        }}
+      >
         Devamını Oku
       </Button>
+      
       {user && user.uid === post.authorId && (
-        <>
-          <Button size="small" startIcon={<EditIcon />} onClick={() => onEdit(post)}>
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+          <Button 
+            size="small" 
+            startIcon={<EditIcon />} 
+            onClick={() => onEdit(post)}
+            sx={{ 
+              color: '#2196f3',
+              '&:hover': {
+                backgroundColor: 'rgba(33, 150, 243, 0.08)'
+              }
+            }}
+          >
             Düzenle
           </Button>
-          <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => onDelete(post.id)}>
+          <Button 
+            size="small" 
+            startIcon={<DeleteIcon />} 
+            color="error" 
+            onClick={() => onDelete(post.id)}
+            sx={{ 
+              '&:hover': {
+                backgroundColor: 'rgba(244, 67, 54, 0.08)'
+              }
+            }}
+          >
             Sil
           </Button>
-        </>
+        </Box>
       )}
     </CardActions>
   </Card>

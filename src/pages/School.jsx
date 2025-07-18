@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { Container, Typography, Box, Paper, Button } from '@mui/material';
 
 function School() {
   const [school, setSchool] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const schoolName = 'Medeniyet_Üniversitesi';
   const navigate = useNavigate();
 
@@ -21,42 +24,110 @@ function School() {
             data.content_urls?.desktop.page ||
             `https://tr.wikipedia.org/wiki/${schoolName}`,
         });
+        setError(null);
       })
       .catch((error) => {
         console.error('Okul bilgisi alınamadı:', error);
-        setSchool(null);
+        setError('Okul bilgisi yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
       })
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Yükleniyor...</p>;
-  if (!school) return <p>Okul bilgisi bulunamadı.</p>;
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <LoadingSpinner message="Okul bilgileri yükleniyor..." />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Hata
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => window.location.reload()}
+          >
+            Tekrar Dene
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
+  if (!school) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="text.secondary">
+            Okul bilgisi bulunamadı.
+          </Typography>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
-    <div className="page-wrapper">
-      <div className="info-container">
-        <h2>{school.name}</h2>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom align="center">
+          {school.name}
+        </Typography>
+        
         {school.image && (
-          <img
-            src={school.image}
-            alt={school.name}
-            style={{ maxWidth: '400px' }}
-          />
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <img
+              src={school.image}
+              alt={school.name}
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '300px', 
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+            />
+          </Box>
         )}
-        <p>{school.description}</p>
-        <p>
-          Daha fazla bilgi için{' '}
-          <a href={school.link} target="_blank" rel="noopener noreferrer">
-            buraya tıklayabilirsiniz
-          </a>
-          .
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-          <button className="back-button" onClick={() => navigate('/bilgiler')}>Önceki Sayfa</button>
-          <button className="back-button" onClick={() => navigate('/dogumyeri')}>Sonraki Sayfa</button>
-        </div>
-      </div>
-    </div>
+        
+        <Typography variant="body1" paragraph sx={{ lineHeight: 1.6 }}>
+          {school.description}
+        </Typography>
+        
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <Button
+            variant="contained"
+            href={school.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ mr: 2 }}
+          >
+            Daha Fazla Bilgi
+          </Button>
+        </Box>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/bilgiler')}
+          >
+            Önceki Sayfa
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/dogumyeri')}
+          >
+            Sonraki Sayfa
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

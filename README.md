@@ -10,6 +10,8 @@ Modern React ve Firebase kullanarak geliştirilmiş, kullanıcı dostu bir blog 
 - **👥 Kullanıcı Feed'i**: Diğer kullanıcıları keşfetme
 - **🎨 Modern UI**: Material-UI ile responsive tasarım
 - **🔥 Firebase Entegrasyonu**: Gerçek zamanlı veri senkronizasyonu
+- **🛡️ Güvenlik**: Environment variables ile güvenli konfigürasyon
+- **⚡ Performans**: Optimize edilmiş loading states ve error handling
 
 ## 🛠️ Teknolojiler
 
@@ -32,9 +34,19 @@ cd blogsayfam
 npm install
 ```
 
-3. **Firebase yapılandırması:**
+3. **Environment variables ayarlayın:**
    - Firebase Console'dan yeni proje oluşturun
-   - `src/firebase/config.js` dosyasını kendi Firebase ayarlarınızla güncelleyin
+   - Proje ayarlarından Firebase konfigürasyonunu alın
+   - Kök dizinde `.env` dosyası oluşturun:
+   ```env
+   VITE_FIREBASE_API_KEY=your_api_key_here
+   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+   ```
 
 4. **Geliştirme sunucusunu başlatın:**
 ```bash
@@ -46,9 +58,13 @@ npm run dev
 ```
 src/
 ├── components/          # Yeniden kullanılabilir bileşenler
+│   ├── LoadingSpinner.jsx  # Yükleme animasyonu
+│   ├── ErrorBoundary.jsx   # Hata yakalama
+│   └── AuthForm.jsx        # Kimlik doğrulama formu
 ├── pages/              # Sayfa bileşenleri
 ├── hooks/              # Custom React hooks
 ├── utils/              # Yardımcı fonksiyonlar
+│   └── errorHandler.js # Hata yönetimi
 ├── services/           # API ve Firebase servisleri
 ├── layouts/            # Layout bileşenleri
 ├── theme/              # Material-UI tema ayarları
@@ -59,7 +75,7 @@ src/
 ## 🎯 Kullanım
 
 ### Kullanıcı İşlemleri
-- Ana sayfadan "Kayıt Ol" butonuna tıklayarak hesap oluşturun
+- Header'daki "Giriş Yap" butonuna tıklayarak hesap oluşturun veya giriş yapın
 - Giriş yaptıktan sonra profil bilgilerinizi düzenleyin
 - Diğer kullanıcıları feed sayfasından keşfedin
 
@@ -86,7 +102,8 @@ npm run preview  # Build önizleme
 - ESLint kurallarına uyun
 - Component'leri küçük ve odaklanmış tutun
 - Custom hook'lar kullanın
-- TypeScript kullanımı önerilir
+- Error handling için `utils/errorHandler.js` kullanın
+- Loading states için `LoadingSpinner` component'ini kullanın
 
 ## 🚀 Deployment
 
@@ -102,6 +119,12 @@ firebase login
 firebase init hosting
 firebase deploy
 ```
+
+## 🔒 Güvenlik
+
+- Firebase API anahtarları environment variables ile korunur
+- `.env` dosyası `.gitignore`'a eklenmiştir
+- Hassas bilgiler asla kod içinde saklanmaz
 
 ## 📄 Lisans
 

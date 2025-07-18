@@ -1,6 +1,7 @@
 
 import InfoRow from '../components/InfoRow';
 import { useNavigate } from 'react-router-dom';
+import { Container, Typography, Box, Paper, Button } from '@mui/material';
 
 function ContactPage() {
   const contactInfo = [
@@ -13,19 +14,32 @@ function ContactPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="page-wrapper">
-      <div className="info-container">
-        <h2>İletişim Bilgileri</h2>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom align="center">
+          İletişim Bilgileri
+        </Typography>
 
         {contactInfo.map((item, index) => (
           <InfoRow key={index} label={item.label} value={item.value} />
         ))}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-          <button className="back-button" onClick={() => navigate('/dogumyeri')}>Önceki Sayfa</button>
-          <button className="back-button" onClick={() => navigate('/')}>Sonraki Sayfa</button>
-        </div>
-      </div>
-    </div>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/dogumyeri')}
+          >
+            Önceki Sayfa
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/')}
+          >
+            Sonraki Sayfa
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 
