@@ -28,4 +28,4 @@ const output = `// Bu dosya otomatik olarak GeoJSON'dan üretilmiştir. Elle dü
 
 const outPath = path.join(__dirname, 'cityPaths.js');
 fs.writeFileSync(outPath, output);
-console.log('cityPaths.js başarıyla oluşturuldu!'); 
+console.log('cityPaths.js başarıyla çok iyi oluşturuldu!'); 

@@ -151,7 +151,7 @@ function Home() {
           flexDirection: 'column',
           alignItems: 'center',
           height: { xs: 'auto', md: 'calc(100vh - 120px)' },
-          mb: { xs: 2, md: 0 },
+          mb: 0, // <-- ALTTAKİ BOŞLUK KALKTI
           pl: 0,
           borderRadius: 0,
           justifyContent: 'flex-start',

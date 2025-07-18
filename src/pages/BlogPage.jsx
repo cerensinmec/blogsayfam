@@ -581,16 +581,20 @@ function BlogPage() {
         background: '#f3d6ce',
         p: { xs: 1, md: 2 },
         boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)',
-        display: { xs: 'none', md: 'flex' },
+        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        height: { md: 'calc(100vh - 120px)' },
-        mb: { xs: 4, md: 0 },
+        height: { xs: 'auto', md: 'calc(100vh - 120px)' },
+        mb: 0,
         borderRadius: 0,
         justifyContent: 'flex-start',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        // Sidebar içeriği azsa da arka plan tam dolsun
+        minHeight: { xs: 'auto', md: 'calc(100vh - 120px)' },
       }}>
-        <BlogSidebar posts={posts} navigate={navigate} />
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          <BlogSidebar posts={posts} navigate={navigate} />
+        </Box>
       </Box>
     </Box>
   );
