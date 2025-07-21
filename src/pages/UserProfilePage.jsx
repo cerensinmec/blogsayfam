@@ -63,7 +63,7 @@ function UserProfilePage() {
       const querySnapshot = await getDocs(q);
       const postsData = [];
       querySnapshot.forEach((doc) => {
-        postsData.push({ id: doc.id, ...doc.data() });
+        postsData.push({ ...doc.data(), id: doc.id });
       });
       
       // Client-side sıralama
@@ -98,7 +98,7 @@ function UserProfilePage() {
       {/* Hero Section */}
       <Box 
         sx={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: '#4E342E',
           color: 'white',
           p: 6,
           mb: 6,
@@ -117,7 +117,7 @@ function UserProfilePage() {
           }} 
         />
         <Typography variant="h3" sx={{ mb: 2, fontWeight: 'bold' }}>
-          {profile.displayName || 'İsimsiz Kullanıcı'}
+          {profile.displayName || profile.username || ((profile.firstName || '') + ' ' + (profile.lastName || '')).trim() || profile.email || 'İsimsiz Kullanıcı'}
         </Typography>
         <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
           {profile.bio || 'Bu kullanıcı henüz bir bio eklememiş.'}

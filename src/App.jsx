@@ -11,9 +11,7 @@ import Home from './pages/Home';
 import School from './pages/School';
 import BirthPlace from './pages/BirthPlacePage';
 import ContactPage from './pages/ContactPage';
-import NotesPage from './pages/NotesPage';
 import AdminPage from './pages/AdminPage';
-import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import BlogEditPage from './pages/BlogEditPage';
 import AdanaMediaPage from './pages/AdanaMediaPage';
@@ -75,41 +73,34 @@ function App() {
             <div style={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/okul" element={<School />} />
-                <Route path="/dogumyeri" element={<BirthPlace />} />
-                <Route path="/iletisim" element={<ContactPage />} />
-                <Route path="/notlar" element={<NotesPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/blog" element={<FeedPage />} />
                 <Route path="/blog/:postId" element={<BlogDetailPage />} />
-                <Route path="/blog/edit" element={<BlogEditPage />} />
-                <Route path="/blog/edit/:postId" element={<BlogEditPage />} />
-                <Route path="/adana-medya" element={<AdanaMediaPage />} />
+                <Route path="/blog/edit/:id" element={<BlogEditPage />} />
+                <Route path="/school" element={<School />} />
+                <Route path="/birthplace" element={<BirthPlace />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/adanamedia" element={<AdanaMediaPage />} />
                 <Route path="/profile/edit" element={<ProfileEditPage />} />
                 <Route path="/user/:userId" element={<UserProfilePage />} />
-                <Route path="/blogsayfam" element={<MyBlogPage />} />
-                <Route path="/kisisel-bilgiler" element={<KisiselBilgilerPage />} />
+                <Route path="/myblogs" element={<MyBlogPage />} />
+                <Route path="/kisiselbilgiler" element={<KisiselBilgilerPage />} />
                 <Route path="/egitim" element={<EgitimPage />} />
                 <Route path="/memleket" element={<MemleketPage />} />
                 <Route path="/seyahatlerim" element={<SeyahatlerimPage />} />
                 <Route path="/hobilerim" element={<HobilerimPage />} />
-                <Route path="/dizi-film" element={<DiziFilmPage />} />
-                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/dizifilm" element={<DiziFilmPage />} />
               </Routes>
             </div>
+            <footer style={footerStyle}>
+              © {new Date().getFullYear()} Bloggi. Tüm hakları saklıdır.
+            </footer>
+            <Fab color="secondary" aria-label="chat" style={fabStyle} onClick={() => setPopupOpen(true)}>
+              <ChatIcon />
+            </Fab>
+            <MessagePopup open={popupOpen} onClose={() => setPopupOpen(false)} />
           </Router>
-          <div style={footerStyle}>
-            © 2025 Ceren Sinmec. Tüm hakları saklıdır.
-          </div>
-          <Fab 
-            color="primary" 
-            aria-label="mesaj" 
-            onClick={() => setPopupOpen(true)} 
-            style={fabStyle}
-          >
-            <ChatIcon />
-          </Fab>
-          <MessagePopup open={popupOpen} onClose={() => setPopupOpen(false)} />
         </div>
       </ErrorBoundary>
     </ThemeProvider>

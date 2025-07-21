@@ -4,7 +4,6 @@ import BirthPlace from "../constants/data/birthPlace.json";
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Container, Typography, Box, Paper, Button, Alert } from '@mui/material';
-import TurkeyMap from '../components/TurkeyMap';
 
 function BirthPlacePage() {
   const [cityInfo, setCityInfo] = useState(null);

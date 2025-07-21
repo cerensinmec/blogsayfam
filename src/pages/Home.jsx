@@ -74,7 +74,18 @@ function Home() {
         // Kullanıcıları getir
         const usersRef = collection(db, 'users');
         const usersSnapshot = await getDocs(usersRef);
-        const usersData = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const usersData = usersSnapshot.docs.map(doc => {
+          const data = { id: doc.id, ...doc.data() };
+          // displayName önceliği: displayName > username > firstName+lastName > email > 'Kullanıcı'
+          let displayName = data.displayName;
+          if (!displayName) {
+            if (data.username) displayName = data.username;
+            else if (data.firstName || data.lastName) displayName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+            else if (data.email) displayName = data.email;
+            else displayName = 'Kullanıcı';
+          }
+          return { ...data, displayName };
+        });
         setUsers(usersData);
 
         // Blog yazılarını getir (son 3 tanesi)
