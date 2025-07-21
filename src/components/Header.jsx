@@ -49,9 +49,7 @@ function Header() {
 
   const menuItems = [
     { text: 'Anasayfa', path: '/' },
-    { text: 'Notlar', path: '/notlar' },
     { text: 'Akış', path: '/feed' },
-    { text: 'Blog', path: '/blog' },
   ];
 
   const userMenuItems = [

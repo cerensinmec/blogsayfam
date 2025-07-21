@@ -229,12 +229,12 @@ select:focus {
 }
 
 .city {
-  fill: #b3e0ff;
-  stroke: #003366;
+  fill: #E0C097;
+  stroke: #4E342E;
   stroke-width: 1;
   cursor: pointer;
   transition: fill 0.2s;
 }
 .city:hover {
-  fill: #1976d2;
+  fill: #8D6E63;
 }

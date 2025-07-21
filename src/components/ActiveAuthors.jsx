@@ -7,13 +7,12 @@ const ActiveAuthors = ({ users, loading, error, handleUserClick }) => (
     width: { xs: '100%', md: 340 },
     minWidth: 280,
     maxWidth: 380,
-    background: '#f3d6ce',
     p: { xs: 1, md: 2 },
     boxShadow: '0 2px 16px 0 rgba(0,0,0,0.04)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    height: { md: '100vh' },
+    overflowY: 'auto',
     mb: { xs: 4, md: 0 },
     borderRadius: 0,
     justifyContent: 'flex-start',
@@ -35,7 +34,7 @@ const ActiveAuthors = ({ users, loading, error, handleUserClick }) => (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
                 <Avatar src={user.photoURL || ''} sx={{ width: 80, height: 80, mb: 2 }} />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {user.displayName || user.name || 'Kullanıcı'}
+                  {user.displayName || user.username || ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || user.email || 'Kullanıcı'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
                   {user.bio || 'Henüz biyografi eklenmemiş.'}

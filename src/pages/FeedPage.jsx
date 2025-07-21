@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Container } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase/config';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import ActiveAuthors from '../components/ActiveAuthors';
 import BlogPosts from '../components/BlogPosts';
+import BlogSidebar from '../components/BlogSidebar';
 
 const FeedPage = () => {
   const [users, setUsers] = useState([]);
@@ -56,18 +57,39 @@ const FeedPage = () => {
     <Container maxWidth={false} disableGutters sx={{
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
-      alignItems: 'flex-start',
+      alignItems: 'stretch',
       width: '100%',
       maxWidth: '100%',
-      minHeight: 'calc(100vh - 120px)',
       gap: 0,
       px: 0,
       py: 0,
       boxSizing: 'border-box',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      justifyContent: 'center',
+      height: '100%',
+      minHeight: 0,
+      margin: 0
     }}>
-      <ActiveAuthors users={users} loading={loading} error={error} handleUserClick={handleUserClick} />
-      <BlogPosts posts={posts} loading={loading} error={error} navigate={navigate} formatDate={formatDate} />
+      {/* Sol Sidebar */}
+      <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', minWidth: 320, maxWidth: 340, height: '100vh', bgcolor: '#F3EDE7', position: 'sticky', top: 0, overflowY: 'auto' }}>
+        <BlogSidebar posts={posts} navigate={navigate} />
+      </Box>
+      {/* Orta içerik */}
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+        {/* Mobilde üstte BlogSidebar */}
+        <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+          <BlogSidebar posts={posts} navigate={navigate} />
+        </Box>
+        <BlogPosts posts={posts} loading={loading} error={error} navigate={navigate} formatDate={formatDate} />
+      </Box>
+      {/* Sağ Sidebar */}
+      <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', minWidth: 320, maxWidth: 340, height: '100vh', bgcolor: '#F3EDE7', position: 'sticky', top: 0, overflowY: 'auto' }}>
+        <ActiveAuthors users={users} loading={loading} error={error} handleUserClick={handleUserClick} />
+      </Box>
+      {/* Mobilde altta ActiveAuthors */}
+      <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+        <ActiveAuthors users={users} loading={loading} error={error} handleUserClick={handleUserClick} />
+      </Box>
     </Container>
   );
 };
