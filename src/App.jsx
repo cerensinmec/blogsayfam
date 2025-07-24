@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ThemeProvider,
   CssBaseline,
-  GlobalStyles,
-  Fab
+  GlobalStyles
 } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import ChatIcon from '@mui/icons-material/Chat';
 
 import theme, { sageColor } from './theme/theme';
 import Header from './components/Header';
-import MessagePopup from './components/MessagePopup';
 import ErrorBoundary from './components/ErrorBoundary';
 import School from './pages/School';
 import BirthPlace from './pages/BirthPlacePage';
@@ -38,7 +35,6 @@ const deepForest = '#182D09';
 const eggshell = '#FCFFF5';
 
 const AppContent = () => {
-  const [popupOpen, setPopupOpen] = useState(false);
   const location = useLocation();
 
   const globalStyles = {
@@ -57,6 +53,7 @@ const AppContent = () => {
   };
 
   const isFeed = location.pathname === '/feed';
+  const isMessages = location.pathname === '/messages';
   const isHome = location.pathname === '/' || location.pathname === '/home';
 
   const footerStyle = {
@@ -69,12 +66,7 @@ const AppContent = () => {
     boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
   };
 
-  const fabStyle = {
-    position: 'fixed',
-    bottom: 24,
-    right: 24,
-    zIndex: 1400
-  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -82,16 +74,10 @@ const AppContent = () => {
       <GlobalStyles styles={globalStyles} />
       <ErrorBoundary>
         {isHome ? (
-          <>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/home" element={<HomePage />} />
-            </Routes>
-            <Fab color="primary" aria-label="chat" sx={fabStyle} onClick={() => setPopupOpen(true)}>
-              <ChatIcon />
-            </Fab>
-            <MessagePopup open={popupOpen} onClose={() => setPopupOpen(false)} />
-          </>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
+          </Routes>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header
@@ -122,15 +108,11 @@ const AppContent = () => {
                 <Route path="/messages" element={<MessagesPage />} />
               </Routes>
             </div>
-            {!isFeed && (
+            {!isFeed && !isMessages && (
               <footer style={footerStyle}>
                 <span>© {new Date().getFullYear()} Bloggi. Tüm hakları saklıdır.</span>
               </footer>
             )}
-            <Fab color="primary" aria-label="chat" sx={fabStyle} onClick={() => setPopupOpen(true)}>
-              <ChatIcon />
-            </Fab>
-            <MessagePopup open={popupOpen} onClose={() => setPopupOpen(false)} />
           </div>
         )}
       </ErrorBoundary>
