@@ -10,7 +10,7 @@ const TurkeyMap = ({ onCitySelect, cityHasPostsMap }) => {
         id="svg-turkey-map"
         xmlns="http://www.w3.org/2000/svg"
         version="1.1"
-        viewBox="25 35 20 10"
+        viewBox="25 35 20 12"
         style={{ width: "100%", height: "auto" }}
       >
         <defs>
@@ -40,7 +40,7 @@ const TurkeyMap = ({ onCitySelect, cityHasPostsMap }) => {
                 <circle
                   cx={center.cx}
                   cy={center.cy}
-                  r={hasPost ? 0.22 : 0.13}
+                  r={hasPost ? 0.25 : 0.15}
                   fill={hasPost ? "#e53935" : "#222"}
                   stroke="#fff"
                   strokeWidth={hasPost ? 0.06 : 0.03}
@@ -51,6 +51,25 @@ const TurkeyMap = ({ onCitySelect, cityHasPostsMap }) => {
               </Tooltip>
             );
           })}
+          
+          {/* Şehir isimleri */}
+          {cityCenters.map(center => (
+            <text
+              key={center.id + '-text'}
+              x={center.cx}
+              y={center.cy - 0.5}
+              fontSize="0.06"
+              fill="#555"
+              textAnchor="middle"
+              style={{ 
+                pointerEvents: "none",
+                fontFamily: "Arial, sans-serif",
+                fontWeight: "400"
+              }}
+            >
+              {center.name}
+            </text>
+          ))}
         </g>
       </svg>
     </div>

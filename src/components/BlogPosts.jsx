@@ -7,19 +7,21 @@ import { collection, doc, onSnapshot, setDoc, deleteDoc, addDoc } from 'firebase
 import { useAuth } from '../hooks/useAuth';
 import MessagePopup from './MessagePopup';
 
-const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => {
+const BlogPosts = ({ posts, loading, error, navigate, formatDate, titleColor }) => {
   const { user } = useAuth();
   const [likeStates, setLikeStates] = useState({}); // { [postId]: { likeCount, userLiked } }
   const [commentCounts, setCommentCounts] = useState({}); // { [postId]: count }
+  const [saveStates, setSaveStates] = useState({}); // { [postId]: userSaved }
   const [commentModal, setCommentModal] = useState({ open: false, postId: null });
   const [commentText, setCommentText] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
 
-  // Beğeni ve yorum sayısı dinleyicileri
+  // Beğeni, yorum ve kaydet dinleyicileri
   useEffect(() => {
     if (!posts || posts.length === 0) return;
     const unsubLikes = [];
     const unsubComments = [];
+    const unsubSaves = [];
     posts.forEach(post => {
       // Likes
       const likeRef = collection(db, 'blog-posts', post.firestoreId, 'likes');
@@ -39,12 +41,31 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => {
         setCommentCounts(prev => ({ ...prev, [post.firestoreId]: snapshot.size }));
       });
       unsubComments.push(unsubComment);
+      // Saves - kullanıcının kaydettikleri (savedpost koleksiyonundan)
+      if (user) {
+        const saveRef = collection(db, 'savedpost');
+        const unsubSave = onSnapshot(saveRef, (snapshot) => {
+          const savedPosts = {};
+          snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            // Sadece bu kullanıcının kaydettiği postları işaretle
+            if (data.saverId === user.uid) {
+              savedPosts[data.savedId] = true;
+            }
+          });
+          setSaveStates(savedPosts);
+        });
+        unsubSaves.push(unsubSave);
+      }
     });
     return () => {
       unsubLikes.forEach(unsub => unsub());
       unsubComments.forEach(unsub => unsub());
+      unsubSaves.forEach(unsub => unsub());
     };
   }, [posts, user]);
+
+console.log('useruseruser',user);
 
   // Beğeni işlemi
   const handleLike = async (post) => {
@@ -55,6 +76,53 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => {
       await deleteDoc(likeRef);
     } else {
       await setDoc(likeRef, { likedAt: new Date() });
+    }
+  };
+
+  // Kaydet işlemi (savedpost koleksiyonu)
+  const handleSave = async (post) => {
+    if (!user) {
+      console.log('Kaydet - Kullanıcı giriş yapmamış');
+      return;
+    }
+    
+    console.log('Kaydet işlemi başlatılıyor:', {
+      userId: user.uid,
+      postId: post.firestoreId,
+      postTitle: post.title
+    });
+    
+    const userSaved = saveStates[post.firestoreId];
+    
+    try {
+      if (userSaved) {
+        // Kaydedilmiş kaydı bul ve sil
+        console.log('Kaydet kaldırılıyor...');
+        const savedRef = collection(db, 'savedpost');
+        const q = query(savedRef, 
+          where('saverId', '==', user.uid),
+          where('savedId', '==', post.firestoreId)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach(async (docSnapshot) => {
+          await deleteDoc(doc(db, 'savedpost', docSnapshot.id));
+        });
+        console.log('Kaydet başarıyla kaldırıldı');
+      } else {
+        // Yeni kaydet kaydı oluştur
+        console.log('Yazı kaydediliyor...');
+        await addDoc(collection(db, 'savedpost'), {
+          saverId: user.uid,
+          savedId: post.firestoreId,
+          postTitle: post.title,
+          postAuthor: post.authorName,
+          savedAt: new Date()
+        });
+        console.log('Yazı başarıyla kaydedildi');
+      }
+    } catch (error) {
+      console.error('Kaydet işlemi hatası:', error);
     }
   };
 
@@ -84,7 +152,7 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => {
 
   return (
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, pr: { xs: 0, md: 2 }, pl: { xs: 0, md: 2 }, pt: 4 }}>
-      <Typography variant="h5" sx={{ mb: 3, textAlign: 'center' }}>
+      <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', color: titleColor || undefined }}>
         Blog Yazıları
       </Typography>
       {loading ? (
@@ -104,30 +172,36 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate }) => {
           </Button>
         </Card>
       ) : (
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Grid container spacing={2} justifyContent="center" sx={{ maxWidth: 1200, width: '100%' }} alignItems="stretch">
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gridAutoRows: '400px',
+            gap: 3, 
+            width: '100%', 
+            maxWidth: 1400 
+          }}>
             {posts.map((post) => (
-              <Grid item xs={12} md={6} key={post.firestoreId || post.id} sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ width: '100%', maxWidth: 500, display: 'flex' }}>
-                  <BlogPostCard
-                    post={post}
-                    user={user}
-                    navigate={navigate}
-                    formatDate={formatDate}
-                    getCategoryColor={() => 'primary'}
-                    likeCount={likeStates[post.firestoreId]?.likeCount || 0}
-                    userLiked={likeStates[post.firestoreId]?.userLiked || false}
-                    onLike={() => handleLike(post)}
-                    commentCount={commentCounts[post.firestoreId] || 0}
-                    onCommentClick={() => handleOpenCommentModal(post)}
-                    onEdit={() => {}}
-                    onDelete={() => {}}
-                    sx={{ height: '100%', width: '100%' }}
-                  />
-                </Box>
-              </Grid>
+              <Box key={post.firestoreId || post.id} sx={{ width: '100%', height: '100%' }}>
+                <BlogPostCard
+                  post={post}
+                  user={user}
+                  navigate={navigate}
+                  formatDate={formatDate}
+                  getCategoryColor={() => 'primary'}
+                  likeCount={likeStates[post.firestoreId]?.likeCount || 0}
+                  userLiked={likeStates[post.firestoreId]?.userLiked || false}
+                  onLike={() => handleLike(post)}
+                  commentCount={commentCounts[post.firestoreId] || 0}
+                  onCommentClick={() => handleOpenCommentModal(post)}
+                  userSaved={saveStates[post.firestoreId] || false}
+                  onSave={() => handleSave(post)}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                />
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Box>
       )}
       {/* Yorum ekleme modalı */}

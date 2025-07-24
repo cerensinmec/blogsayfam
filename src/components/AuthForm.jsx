@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Dialog, 
   DialogTitle, 
@@ -17,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { getFirebaseErrorMessage, logError } from '../utils/errorHandler';
 
 function AuthForm({ open, onClose, onAuthSuccess }) {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -96,11 +98,14 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
           profilePhoto: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`,
           bio: '',
           location: '',
-          website: ''
+          website: '',
+          isAdmin: false,
         });
       }
       onAuthSuccess();
       onClose();
+      // Giriş yapıldıktan sonra akış sayfasına yönlendir
+      navigate('/feed');
     } catch (error) {
       logError(error, 'Kimlik doğrulama');
       setError(getFirebaseErrorMessage(error.code));

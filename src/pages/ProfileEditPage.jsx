@@ -12,6 +12,7 @@ import {
 import { auth, db } from '../firebase/config';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 function ProfileEditPage() {
   const [user, setUser] = useState(null);
@@ -25,6 +26,10 @@ function ProfileEditPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,6 +83,26 @@ function ProfileEditPage() {
       setError('Profil kaydedilirken hata oluştu.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+    if (!currentPassword || !newPassword) {
+      setPasswordError('Lütfen mevcut ve yeni şifrenizi girin.');
+      return;
+    }
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, newPassword);
+      setPasswordSuccess('Şifreniz başarıyla değiştirildi.');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (err) {
+      setPasswordError('Şifre değiştirilirken hata oluştu: ' + (err.message || 'Bilinmeyen hata'));
     }
   };
 
@@ -148,6 +173,14 @@ function ProfileEditPage() {
           fullWidth
           sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
+        <TextField
+          label="E-posta"
+          name="email"
+          value={user.email}
+          disabled
+          fullWidth
+          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
+        />
         <Button 
           type="submit" 
           variant="contained" 
@@ -159,6 +192,27 @@ function ProfileEditPage() {
         >
           {saving ? 'Kaydediliyor...' : 'Kaydet'}
         </Button>
+      </Box>
+      {/* Şifre değiştirme bölümü */}
+      <Box component="form" onSubmit={handlePasswordChange} sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400, mx: 'auto' }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>Şifre Değiştir</Typography>
+        {passwordError && <Alert severity="error">{passwordError}</Alert>}
+        {passwordSuccess && <Alert severity="success">{passwordSuccess}</Alert>}
+        <TextField
+          label="Mevcut Şifre"
+          type="password"
+          value={currentPassword}
+          onChange={e => setCurrentPassword(e.target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Yeni Şifre"
+          type="password"
+          value={newPassword}
+          onChange={e => setNewPassword(e.target.value)}
+          fullWidth
+        />
+        <Button type="submit" variant="outlined">Şifreyi Değiştir</Button>
       </Box>
     </Container>
   );

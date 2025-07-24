@@ -11,11 +11,16 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Alert
+  Alert,
+  Tabs,
+  Tab
 } from '@mui/material';
+import { Message as MessageIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase/config';
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import FollowersModal from '../components/FollowersModal';
+import { getFollowers, getFollowing, isFollowing, followUser, unfollowUser } from '../services/followService';
 
 function UserProfilePage() {
   const { userId } = useParams();
@@ -25,6 +30,13 @@ function UserProfilePage() {
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [followersModalOpen, setFollowersModalOpen] = useState(false);
+  const [followersLoading, setFollowersLoading] = useState(false);
+  const [isUserFollowing, setIsUserFollowing] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [savedPosts, setSavedPosts] = useState([]);
 
   useEffect(() => {
     console.log('UserProfilePage - userId:', userId);
@@ -36,8 +48,11 @@ function UserProfilePage() {
 
   useEffect(() => {
     fetchProfileAndPosts();
+    fetchFollowersData();
+    // Her kullanıcı için kaydedilen yazıları çek
+    fetchSavedPosts();
     // eslint-disable-next-line
-  }, [userId]);
+  }, [userId, currentUser]);
 
   const fetchProfileAndPosts = async () => {
     setLoading(true);
@@ -83,6 +98,66 @@ function UserProfilePage() {
     }
   };
 
+  const fetchSavedPosts = async () => {
+    try {
+      // savedpost koleksiyonundan bu kullanıcının kaydettiği yazıları çek (herkese açık)
+      const savedRef = collection(db, 'savedpost');
+      const q = query(savedRef, where('saverId', '==', userId));
+      const savedSnapshot = await getDocs(q);
+      const savedPostIds = savedSnapshot.docs.map(doc => doc.data().savedId);
+      
+      if (savedPostIds.length > 0) {
+        const savedPostsData = [];
+        
+        // Her kaydedilen post için ayrı ayrı getDoc çağrısı yap
+        for (const postId of savedPostIds) {
+          const postRef = doc(db, 'blog-posts', postId);
+          const postSnap = await getDoc(postRef);
+          if (postSnap.exists()) {
+            savedPostsData.push({ ...postSnap.data(), id: postSnap.id });
+          }
+        }
+        
+        setSavedPosts(savedPostsData);
+      } else {
+        setSavedPosts([]);
+      }
+    } catch (error) {
+      console.error('Kaydedilen yazılar yüklenirken hata:', error);
+      setSavedPosts([]);
+    }
+  };
+
+  const fetchFollowersData = async () => {
+    setFollowersLoading(true);
+    try {
+      const [f, g] = await Promise.all([
+        getFollowers(userId),
+        getFollowing(userId)
+      ]);
+      setFollowers(f);
+      setFollowing(g);
+      if (currentUser && currentUser.uid !== userId) {
+        setIsUserFollowing(await isFollowing(currentUser.uid, userId));
+      }
+    } finally {
+      setFollowersLoading(false);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!currentUser) return;
+    await followUser(currentUser.uid, userId);
+    setIsUserFollowing(true);
+    fetchFollowersData();
+  };
+  const handleUnfollow = async () => {
+    if (!currentUser) return;
+    await unfollowUser(currentUser.uid, userId);
+    setIsUserFollowing(false);
+    fetchFollowersData();
+  };
+
   if (loading) {
     return <Container sx={{ py: 4, textAlign: 'center' }}><CircularProgress /></Container>;
   }
@@ -94,126 +169,191 @@ function UserProfilePage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
-      {/* Hero Section */}
-      <Box 
-        sx={{ 
-          background: '#4E342E',
-          color: 'white',
-          p: 6,
-          mb: 6,
-          borderRadius: 4,
-          textAlign: 'center'
-        }}
-      >
+    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+      {/* Profil Üst Kısım */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, mb: 4, bgcolor: 'white', p: 3, borderRadius: 3, boxShadow: 2 }}>
         <Avatar 
           src={profile.photoURL} 
-          sx={{ 
-            width: 120, 
-            height: 120, 
-            mb: 3,
-            border: '4px solid white',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
-          }} 
+          sx={{ width: 100, height: 100, border: '3px solid #4E342E', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} 
         />
-        <Typography variant="h3" sx={{ mb: 2, fontWeight: 'bold' }}>
-          {profile.displayName || profile.username || ((profile.firstName || '') + ' ' + (profile.lastName || '')).trim() || profile.email || 'İsimsiz Kullanıcı'}
-        </Typography>
-        <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
-          {profile.bio || 'Bu kullanıcı henüz bir bio eklememiş.'}
-        </Typography>
-        
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mb: 3 }}>
-          {profile.school && (
-            <Chip 
-              label={profile.school} 
-              color="primary" 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
-            />
-          )}
-          {profile.birthPlace && (
-            <Chip 
-              label={profile.birthPlace} 
-              color="secondary" 
-              sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
-            />
-          )}
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-          <Typography variant="body1" sx={{ opacity: 0.8 }}>
-            📝 {posts.length} Blog Yazısı
-          </Typography>
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {profile.displayName || profile.username || ((profile.firstName || '') + ' ' + (profile.lastName || '')).trim() || profile.email || 'İsimsiz Kullanıcı'}
+            </Typography>
+            {currentUser && currentUser.uid !== userId && (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {isUserFollowing ?
+                  <Button variant="outlined" color="secondary" size="small" onClick={handleUnfollow}>Takibi Bırak</Button>
+                  :
+                  <Button variant="contained" color="primary" size="small" onClick={handleFollow}>Takip Et</Button>
+                }
+                <Button 
+                  variant="outlined" 
+                  color="primary" 
+                  size="small" 
+                  startIcon={<MessageIcon />}
+                  onClick={() => navigate('/messages', { state: { selectedUser: { id: userId, displayName: profile.displayName || profile.username || profile.email } } })}
+                >
+                  Mesaj Gönder
+                </Button>
+              </Box>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+            <Button variant="text" color="inherit" onClick={() => setFollowersModalOpen(true)} sx={{ p: 0, minWidth: 0, color: '#4E342E', fontWeight: 600 }}>
+              {followers.length} Takipçi
+            </Button>
+            <Typography variant="body2" color="text.secondary">•</Typography>
+            <Button variant="text" color="inherit" onClick={() => setFollowersModalOpen(true)} sx={{ p: 0, minWidth: 0, color: '#4E342E', fontWeight: 600 }}>
+              {following.length} Takip Edilen
+            </Button>
+          </Box>
           {currentUser && currentUser.uid === userId && (
             <Button 
               variant="outlined" 
               onClick={() => navigate('/profile/edit')}
-              sx={{ 
-                borderColor: 'white', 
-                color: 'white',
-                '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' }
-              }}
+              sx={{ mt: 1, fontWeight: 600, borderColor: '#4E342E', color: '#4E342E', '&:hover': { bgcolor: '#f5f5f5', borderColor: '#4E342E' } }}
             >
               Profili Düzenle
             </Button>
           )}
         </Box>
       </Box>
-
-      {/* Blog Yazıları Bölümü */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ mb: 3, textAlign: 'center' }}>
-          Blog Yazıları
+      {/* Bio ve etiketler */}
+      <Box sx={{ mb: 3, px: 1 }}>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+          {profile.bio || 'Bu kullanıcı henüz bir bio eklememiş.'}
         </Typography>
-        {posts.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 6 }}>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-              Henüz blog yazısı yok
-            </Typography>
-            {currentUser && currentUser.uid === userId && (
-              <Button 
-                variant="contained" 
-                onClick={() => navigate('/blog')}
-              >
-                İlk Yazıyı Ekle
-              </Button>
-            )}
-          </Box>
-        ) : (
-          <Grid container spacing={3}>
-            {posts.map((post) => (
-              <Grid xs={12} md={6} lg={4} key={post.id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Chip label={post.category} color="primary" size="small" />
-                    </Box>
-                    <Typography variant="h6" gutterBottom>{post.title}</Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {post.createdAt?.toDate?.() ? post.createdAt.toDate().toLocaleString('tr-TR') : ''}
-                      {post.likeCount > 0 && ` • ❤️ ${post.likeCount}`}
-                      {post.commentCount > 0 && ` • 💬 ${post.commentCount}`}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" onClick={() => navigate(`/blog/${post.id}`)}>
-                      Devamını Oku
-                    </Button>
-                    {currentUser && currentUser.uid === userId && (
-                      <Button size="small" onClick={() => navigate(`/blog/edit/${post.id}`)}>
-                        Düzenle
-                      </Button>
-                    )}
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {profile.school && (
+            <Chip label={profile.school} color="primary" size="small" />
+          )}
+          {profile.birthPlace && (
+            <Chip label={profile.birthPlace} color="secondary" size="small" />
+          )}
+        </Box>
+      </Box>
+      {/* Bloglar başlığı ve sekmeler */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, mt: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>Bloglar</Typography>
+        {currentUser && currentUser.uid === userId && (
+          <Button variant="contained" color="primary" onClick={() => navigate('/blog/edit')}>
+            Yeni Blog Yaz
+          </Button>
         )}
       </Box>
+      
+      {/* Sekmeler - herkese göster */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+          <Tab label={currentUser && currentUser.uid === userId ? `Bloglarım (${posts.length})` : `Blogları (${posts.length})`} />
+          <Tab label={`Kaydettikleri (${savedPosts.length})`} />
+        </Tabs>
+      </Box>
+      {/* Bloglar - Sekme içeriği */}
+      <Box>
+          {tabValue === 0 && (
+            // Bloglarım sekmesi
+            posts.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                  Henüz blog yazısı yok
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  onClick={() => navigate('/blog/edit')}
+                >
+                  İlk Yazıyı Ekle
+                </Button>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {posts.map((post) => (
+                  <Grid item xs={12} md={6} key={post.id}>
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Box sx={{ mb: 2 }}>
+                          <Chip label={post.category} color="primary" size="small" />
+                        </Box>
+                        <Typography variant="h6" gutterBottom>{post.title}</Typography>
+                        <Typography variant="body2" color="text.secondary" paragraph>
+                          {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {post.createdAt?.toDate?.() ? post.createdAt.toDate().toLocaleString('tr-TR') : ''}
+                          {post.likeCount > 0 && ` • ❤️ ${post.likeCount}`}
+                          {post.commentCount > 0 && ` • 💬 ${post.commentCount}`}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small" onClick={() => navigate(`/blog/${post.id}`)}>
+                          Devamını Oku
+                        </Button>
+                        <Button size="small" onClick={() => navigate(`/blog/edit/${post.id}`)}>
+                          Düzenle
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )
+          )}
+          
+        {tabValue === 1 && (
+          // Kaydettikleri sekmesi (herkese açık)
+          savedPosts.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                {currentUser && currentUser.uid === userId 
+                  ? 'Henüz kaydedilen yazı yok' 
+                  : 'Bu kullanıcı henüz yazı kaydetmemiş'
+                }
+              </Typography>
+              {currentUser && currentUser.uid === userId && (
+                <Typography variant="body2" color="text.secondary">
+                  Beğendiğiniz yazıları kaydetmek için bookmark ikonuna tıklayın
+                </Typography>
+              )}
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {savedPosts.map((post) => (
+                <Grid item xs={12} md={6} key={post.id}>
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Box sx={{ mb: 2 }}>
+                        <Chip label={post.category || 'Genel'} color="primary" size="small" />
+                      </Box>
+                      <Typography variant="h6" gutterBottom>{post.title}</Typography>
+                      <Typography variant="body2" color="text.secondary" paragraph>
+                        {post.content && post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {post.authorName && `Yazar: ${post.authorName}`}
+                        {post.createdAt?.toDate?.() && ` • ${post.createdAt.toDate().toLocaleString('tr-TR')}`}
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small" onClick={() => navigate(`/blog/${post.id}`)}>
+                        Devamını Oku
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )
+        )}
+      </Box>
+      <FollowersModal
+        open={followersModalOpen}
+        onClose={() => setFollowersModalOpen(false)}
+        followers={followers}
+        following={following}
+        loading={followersLoading}
+      />
     </Container>
   );
 }
