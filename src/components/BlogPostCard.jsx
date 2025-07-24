@@ -25,11 +25,11 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      border: '1px solid #e0e0e0',
+      border: '2px solid #5A0058',
       borderRadius: 2,
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       transition: 'all 0.3s ease',
-      backgroundColor: '#FCFFF5', // Eggshell
+      backgroundColor: 'white',
       '&:hover': {
         boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
         transform: 'translateY(-2px)'
@@ -40,15 +40,19 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
         <Chip
           label={post.category || 'Genel'}
-          color={getCategoryColor(post.category || 'Genel')}
           size="small"
           sx={{ 
             fontSize: { xs: '0.7rem', md: '0.75rem' },
             fontWeight: 500,
-            borderRadius: 1
+            borderRadius: 1,
+            bgcolor: '#87CEEB', // Açık mavi
+            color: '#2c3e50', // Koyu yazı rengi
+            '&:hover': {
+              bgcolor: '#7BB8D9'
+            }
           }}
         />
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
+        <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', md: '0.75rem' }, color: '#34495e', fontWeight: 500 }}>
           {formatDate(post.createdAt) || ''}
         </Typography>
       </Box>
@@ -60,7 +64,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           fontWeight: 600,
           lineHeight: 1.3,
           mb: 2,
-          color: '#C44569', // Darker pink
+          color: '#5A0058', // Koyu mor
           fontSize: { xs: '1rem', md: '1.25rem' }
         }}
       >
@@ -69,7 +73,6 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       
       <Typography 
         variant="body2" 
-        color="text.secondary" 
         paragraph
         sx={{ 
           lineHeight: 1.6,
@@ -78,7 +81,9 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
-          fontSize: { xs: '0.875rem', md: '0.875rem' }
+          fontSize: { xs: '0.875rem', md: '0.875rem' },
+          color: '#1a1a1a',
+          fontWeight: 500
         }}
       >
         {post.content ? (post.content.length > 120 ? `${post.content.substring(0, 120)}...` : post.content) : ''}
@@ -93,12 +98,12 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             width: 28, 
             height: 28,
             fontSize: '0.875rem',
-            bgcolor: '#C44569' // Darker pink
+            bgcolor: '#5A0058' // Koyu mor
           }}
         >
           {post.authorName?.charAt(0) || '?'}
         </Avatar>
-        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: '#2c3e50' }}>
           {post.authorName || 'Bilinmeyen Yazar'}
         </Typography>
       </Box>
@@ -114,8 +119,8 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             '&:active': { transform: 'scale(1.1)' }
           }}
         >
-          <span style={{ fontSize: 20, color: '#C44569', marginRight: 4 }}>💬</span>
-          <Typography variant="body2" sx={{ color: '#C44569', fontWeight: 600 }}>
+          <span style={{ fontSize: 20, color: '#5A0058', marginRight: 4 }}>💬</span>
+          <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
             {commentCount}
           </Typography>
         </Box>
@@ -166,11 +171,11 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
         onClick={() => navigate(`/blog/${post.firestoreId}`)}
         startIcon={<ReadMoreIcon />}
         sx={{ 
-          color: '#C44569',
+          color: '#5A0058',
           fontWeight: 500,
           fontSize: { xs: '0.75rem', md: '0.875rem' },
           '&:hover': {
-            backgroundColor: 'rgba(196, 69, 105, 0.08)'
+            backgroundColor: 'rgba(90, 0, 88, 0.08)'
           }
         }}
       >

@@ -122,9 +122,11 @@ const AppContent = () => {
                 <Route path="/messages" element={<MessagesPage />} />
               </Routes>
             </div>
-            <footer style={footerStyle}>
-              <span>© {new Date().getFullYear()} Bloggi. Tüm hakları saklıdır.</span>
-            </footer>
+            {!isFeed && (
+              <footer style={footerStyle}>
+                <span>© {new Date().getFullYear()} Bloggi. Tüm hakları saklıdır.</span>
+              </footer>
+            )}
             <Fab color="primary" aria-label="chat" sx={fabStyle} onClick={() => setPopupOpen(true)}>
               <ChatIcon />
             </Fab>
