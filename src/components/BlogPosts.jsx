@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Card, Button, Grid, CardContent, Chip, Avatar, CardActions } from '@mui/material';
+import { Box, Typography, CircularProgress, Card, Button, Grid, CardContent, Chip, Avatar, CardActions, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import PropTypes from 'prop-types';
 import BlogPostCard from './BlogPostCard';
 import { db } from '../firebase/config';
 import { collection, doc, onSnapshot, setDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuth';
-import MessagePopup from './MessagePopup';
 
 const BlogPosts = ({ posts, loading, error, navigate, formatDate, titleColor }) => {
   const { user } = useAuth();
@@ -205,17 +204,48 @@ console.log('useruseruser',user);
         </Box>
       )}
       {/* Yorum ekleme modalı */}
-      <MessagePopup
+      <Dialog
         open={commentModal.open}
         onClose={handleCloseCommentModal}
-        title="Yorum Ekle"
-        inputLabel="Yorumunuz"
-        value={commentText}
-        onChange={e => setCommentText(e.target.value)}
-        onSend={handleAddComment}
-        loading={commentLoading}
-        showSendButton
-      />
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#5A0058', fontWeight: 600 }}>
+          Yorum Ekle
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Yorumunuz"
+            fullWidth
+            multiline
+            rows={4}
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handleCloseCommentModal}
+            sx={{ color: '#5A0058' }}
+          >
+            İptal
+          </Button>
+          <Button 
+            onClick={handleAddComment}
+            variant="contained"
+            disabled={commentLoading || !commentText.trim()}
+            sx={{ 
+              bgcolor: '#5A0058',
+              '&:hover': { bgcolor: '#4A0048' }
+            }}
+          >
+            {commentLoading ? <CircularProgress size={20} /> : 'Yorum Ekle'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

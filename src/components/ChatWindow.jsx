@@ -26,6 +26,8 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { ref, push, set, onValue, off, get, child, update } from 'firebase/database';
+import { database } from '../firebase/config';
 
 const ChatWindow = ({ 
   currentUser, 
@@ -47,25 +49,53 @@ const ChatWindow = ({
     }
 
     setLoading(true);
-    const q = query(
-      collection(db, 'messages'),
-      where('conversationId', '==', selectedConversation.id),
-      orderBy('sentAt', 'asc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const messageData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setMessages(messageData);
+    
+    // Realtime Database'den mesajları dinle
+    const messagesRef = ref(database, 'messages');
+    console.log('Realtime Database bağlantısı test ediliyor...', database.app.options.databaseURL);
+    
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      console.log('Realtime Database veri alındı:', snapshot.val());
+      const data = snapshot.val();
+      if (data) {
+        // Tüm mesajları al ve conversationId'ye göre filtrele
+        const allMessages = Object.entries(data).map(([id, message]) => ({
+          id,
+          ...message
+        }));
+        
+        const conversationMessages = allMessages.filter(
+          msg => msg.conversationId === selectedConversation.id
+        );
+        
+        console.log('Filtrelenmiş mesajlar:', conversationMessages);
+        
+        // Mesajları sentAt'e göre sırala
+        conversationMessages.sort((a, b) => {
+          if (a.sentAt && b.sentAt) {
+            return a.sentAt - b.sentAt;
+          }
+          return 0;
+        });
+        
+        setMessages(conversationMessages);
+        setLoading(false);
+        
+        // Okunmamış mesajları okundu olarak işaretle
+        markMessagesAsRead(conversationMessages);
+      } else {
+        console.log('Realtime Database boş');
+        setMessages([]);
+        setLoading(false);
+      }
+    }, (error) => {
+      console.error('Realtime Database mesaj yükleme hatası:', error);
       setLoading(false);
-      
-      // Okunmamış mesajları okundu olarak işaretle
-      markMessagesAsRead(messageData);
     });
 
-    return () => unsubscribe();
+    return () => {
+      off(messagesRef);
+    };
   }, [selectedConversation]);
 
   // Mesajları okundu olarak işaretle
@@ -78,19 +108,19 @@ const ChatWindow = ({
 
     for (const message of unreadMessages) {
       try {
-        await updateDoc(doc(db, 'messages', message.id), { read: true });
+        // Realtime Database'de mesajı okundu olarak işaretle
+        const messageRef = ref(database, `messages/${message.id}`);
+        await update(messageRef, { read: true });
       } catch (error) {
         console.error('Mesaj okundu işaretleme hatası:', error);
       }
     }
 
-    // Konuşmadaki okunmamış sayısını güncelle
+    // Konuşmadaki okunmamış sayısını güncelle (Realtime Database'de)
     if (unreadMessages.length > 0) {
       try {
-        const conversationRef = doc(db, 'conversations', selectedConversation.id);
-        await updateDoc(conversationRef, {
-          [`unreadCount.${currentUser.uid}`]: 0
-        });
+        const conversationRef = ref(database, `conversations/${selectedConversation.id}/unreadCount/${currentUser.uid}`);
+        await set(conversationRef, 0);
       } catch (error) {
         console.error('Okunmamış sayı güncelleme hatası:', error);
       }
@@ -109,47 +139,71 @@ const ChatWindow = ({
   // Yeni konuşma oluştur
   const createNewConversation = async (targetUser) => {
     try {
-      // Mevcut konuşma var mı kontrol et
-      const q = query(
-        collection(db, 'conversations'),
-        where('participants', 'array-contains', currentUser.uid)
-      );
+      console.log('Konuşma oluşturma başladı:', { currentUser: currentUser.uid, targetUser: targetUser.id });
       
-      const snapshot = await getDocs(q);
-      const existingConversation = snapshot.docs.find(doc => {
-        const data = doc.data();
-        return data.participants.includes(targetUser.id);
-      });
-
-      if (existingConversation) {
-        const conversationData = {
-          id: existingConversation.id,
-          ...existingConversation.data()
-        };
-        onConversationCreated(conversationData);
-        return conversationData;
+      // Mevcut konuşma var mı kontrol et (Realtime Database'den)
+      const conversationsRef = ref(database, 'conversations');
+      console.log('Realtime Database bağlantısı kontrol ediliyor...');
+      
+      const snapshot = await get(conversationsRef);
+      const conversations = snapshot.val();
+      console.log('Mevcut konuşmalar:', conversations);
+      
+      let existingConversation = null;
+      if (conversations) {
+        const conversationEntries = Object.entries(conversations);
+        existingConversation = conversationEntries.find(([id, conversation]) => {
+          return conversation.participants && 
+                 conversation.participants.includes(currentUser.uid) && 
+                 conversation.participants.includes(targetUser.id);
+        });
       }
 
-      // Yeni konuşma oluştur
+      if (existingConversation) {
+        console.log('Mevcut konuşma bulundu:', existingConversation);
+        const [id, conversationData] = existingConversation;
+        const conversation = { id, ...conversationData };
+        onConversationCreated(conversation);
+        return conversation;
+      }
+
+      // Yeni konuşma oluştur (Realtime Database'de)
+      console.log('Yeni konuşma oluşturuluyor...');
+      const newConversationRef = push(conversationsRef);
+      
+      // Kullanıcı isimlerini güvenli şekilde al
+      const currentUserName = currentUser.displayName || currentUser.firstName || currentUser.email?.split('@')[0] || 'Kullanıcı';
+      const targetUserName = targetUser.displayName || targetUser.firstName || targetUser.email?.split('@')[0] || 'Kullanıcı';
+      
       const conversationData = {
         participants: [currentUser.uid, targetUser.id],
-        participantNames: [currentUser.displayName, targetUser.displayName],
+        participantNames: [currentUserName, targetUserName],
         lastMessage: '',
-        lastMessageTime: serverTimestamp(),
+        lastMessageTime: Date.now(),
         lastSenderId: '',
-        createdAt: serverTimestamp(),
+        createdAt: Date.now(),
         unreadCount: {
           [currentUser.uid]: 0,
           [targetUser.id]: 0
         }
       };
 
-      const docRef = await addDoc(collection(db, 'conversations'), conversationData);
-      const newConversation = { id: docRef.id, ...conversationData };
+      console.log('Konuşma verisi:', conversationData);
+      console.log('Konuşma referansı:', newConversationRef.key);
+      
+      await set(newConversationRef, conversationData);
+      console.log('Konuşma başarıyla oluşturuldu');
+      
+      const newConversation = { id: newConversationRef.key, ...conversationData };
       onConversationCreated(newConversation);
       return newConversation;
     } catch (error) {
       console.error('Konuşma oluşturma hatası:', error);
+      console.error('Hata detayları:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
       return null;
     }
   };
@@ -172,23 +226,33 @@ const ChatWindow = ({
     try {
       const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
       
-      // Mesajı ekle
-      await addDoc(collection(db, 'messages'), {
+      const messageData = {
         conversationId: conversation.id,
         senderId: currentUser.uid,
         receiverId: otherUserId,
         message: newMessage.trim(),
-        sentAt: serverTimestamp(),
+        sentAt: Date.now(), // Realtime Database için timestamp
         read: false,
         messageType: 'text'
-      });
+      };
 
-      // Konuşmayı güncelle
-      await updateDoc(doc(db, 'conversations', conversation.id), {
+      console.log('Mesaj gönderiliyor:', messageData);
+
+      // Realtime Database'e mesajı ekle
+      const messagesRef = ref(database, 'messages');
+      const newMessageRef = push(messagesRef);
+      const messageWithId = { id: newMessageRef.key, ...messageData };
+      await set(newMessageRef, messageWithId);
+
+      console.log('Mesaj başarıyla gönderildi:', messageWithId);
+
+      // Konuşmayı güncelle (Realtime Database'de)
+      const conversationRef = ref(database, `conversations/${conversation.id}`);
+      await update(conversationRef, {
         lastMessage: newMessage.trim(),
-        lastMessageTime: serverTimestamp(),
+        lastMessageTime: Date.now(),
         lastSenderId: currentUser.uid,
-        [`unreadCount.${otherUserId}`]: (conversation.unreadCount?.[otherUserId] || 0) + 1
+        [`unreadCount/${otherUserId}`]: (conversation.unreadCount?.[otherUserId] || 0) + 1
       });
 
       setNewMessage('');
@@ -207,7 +271,18 @@ const ChatWindow = ({
 
   const formatTime = (timestamp) => {
     if (!timestamp) return '';
-    const date = timestamp.toDate();
+    
+    let date;
+    if (typeof timestamp === 'number') {
+      // Realtime Database timestamp (number)
+      date = new Date(timestamp);
+    } else if (timestamp.toDate) {
+      // Firestore timestamp
+      date = timestamp.toDate();
+    } else {
+      return '';
+    }
+    
     return date.toLocaleTimeString('tr-TR', { 
       hour: '2-digit', 
       minute: '2-digit' 
@@ -220,9 +295,11 @@ const ChatWindow = ({
     
     const otherUserId = selectedConversation.participants.find(id => id !== currentUser.uid);
     const otherUserIndex = selectedConversation.participants.indexOf(otherUserId);
+    const otherUserName = selectedConversation.participantNames?.[otherUserIndex] || 'Kullanıcı';
+    
     return {
       id: otherUserId,
-      displayName: selectedConversation.participantNames?.[otherUserIndex] || 'Kullanıcı'
+      displayName: otherUserName
     };
   };
 
@@ -251,22 +328,6 @@ const ChatWindow = ({
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box sx={{ 
-        p: 2, 
-        borderBottom: '1px solid #e0e0e0',
-        background: 'linear-gradient(45deg, #667eea, #764ba2)'
-      }}>
-        <Box display="flex" alignItems="center">
-          <Avatar sx={{ bgcolor: '#fff', color: '#667eea', mr: 2 }}>
-            {otherUser?.displayName?.charAt(0).toUpperCase()}
-          </Avatar>
-          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-            {otherUser?.displayName || 'Kullanıcı'}
-          </Typography>
-        </Box>
-      </Box>
-
       {/* Mesajlar */}
       <Box sx={{ 
         flex: 1, 
@@ -310,7 +371,7 @@ const ChatWindow = ({
                   sx={{
                     p: 1.5,
                     maxWidth: '70%',
-                    backgroundColor: isOwn ? '#667eea' : '#fff',
+                    backgroundColor: isOwn ? '#5A0058' : '#fff',
                     color: isOwn ? 'white' : 'black',
                     borderRadius: isOwn ? '18px 18px 4px 18px' : '18px 18px 18px 4px'
                   }}
@@ -362,9 +423,9 @@ const ChatWindow = ({
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || sending}
             sx={{
-              bgcolor: '#667eea',
+              bgcolor: '#5A0058',
               color: 'white',
-              '&:hover': { bgcolor: '#5a6fd8' },
+              '&:hover': { bgcolor: '#4A0048' },
               '&:disabled': { bgcolor: '#ccc' }
             }}
           >

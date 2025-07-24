@@ -1,39 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   Avatar,
   Typography,
   Badge,
-  Divider,
-  TextField,
-  InputAdornment,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
-  CircularProgress
+  Button
 } from '@mui/material';
 import {
-  Search as SearchIcon,
-  Add as AddIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { 
   collection, 
   query, 
   where, 
   orderBy, 
-  onSnapshot,
-  getDocs,
-  limit
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { ref, onValue, off, get, update } from 'firebase/database';
+import { database } from '../firebase/config';
 
 const ConversationList = ({ 
   currentUser, 
@@ -42,80 +33,61 @@ const ConversationList = ({
   selectedConversationId 
 }) => {
   const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState(null);
 
   // Konuşmaları dinle
   useEffect(() => {
     if (!currentUser) return;
 
-    const q = query(
-      collection(db, 'conversations'),
-      where('participants', 'array-contains', currentUser.uid),
-      orderBy('lastMessageTime', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const conversationData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setConversations(conversationData);
-      setLoading(false);
+    // Realtime Database'den konuşmaları dinle
+    const conversationsRef = ref(database, 'conversations');
+    const unsubscribe = onValue(conversationsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Tüm konuşmaları al ve currentUser'ın katıldığı konuşmaları filtrele
+        const allConversations = Object.entries(data).map(([id, conversation]) => ({
+          id,
+          ...conversation
+        }));
+        
+        const userConversations = allConversations.filter(conversation => 
+          conversation.participants && conversation.participants.includes(currentUser.uid)
+        );
+        
+        // Konuşmaları lastMessageTime'e göre sırala
+        userConversations.sort((a, b) => {
+          if (a.lastMessageTime && b.lastMessageTime) {
+            return b.lastMessageTime - a.lastMessageTime;
+          }
+          return 0;
+        });
+        
+        setConversations(userConversations);
+      } else {
+        setConversations([]);
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      off(conversationsRef);
+    };
   }, [currentUser]);
-
-  // Kullanıcı arama
-  const handleSearch = async (searchTerm) => {
-    if (!searchTerm.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    setSearchLoading(true);
-    try {
-      const q = query(
-        collection(db, 'users'),
-        orderBy('displayName'),
-        limit(10)
-      );
-      
-      const snapshot = await getDocs(q);
-      const users = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(user => 
-          user.id !== currentUser.uid &&
-          user.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      
-      setSearchResults(users);
-    } catch (error) {
-      console.error('Kullanıcı arama hatası:', error);
-    }
-    setSearchLoading(false);
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    handleSearch(value);
-  };
-
-  const handleUserSelect = (user) => {
-    onNewConversation(user);
-    setSearchOpen(false);
-    setSearchQuery('');
-    setSearchResults([]);
-  };
 
   const formatTime = (timestamp) => {
     if (!timestamp) return '';
-    const date = timestamp.toDate();
+    
+    let date;
+    if (typeof timestamp === 'number') {
+      // Realtime Database timestamp (number)
+      date = new Date(timestamp);
+    } else if (timestamp.toDate) {
+      // Firestore timestamp
+      date = timestamp.toDate();
+    } else {
+      return '';
+    }
+    
     const now = new Date();
     const diff = now - date;
     
@@ -128,178 +100,243 @@ const ConversationList = ({
   const getOtherParticipant = (conversation) => {
     const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
     const otherUserIndex = conversation.participants.indexOf(otherUserId);
+    const otherUserName = conversation.participantNames?.[otherUserIndex] || 'Kullanıcı';
+    
     return {
       id: otherUserId,
-      name: conversation.participantNames?.[otherUserIndex] || 'Kullanıcı'
+      name: otherUserName
     };
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // Konuşma silme fonksiyonu - Sadece kendi listesinden kaldır
+  const handleDeleteConversation = async () => {
+    if (!conversationToDelete) return;
+
+    console.log('Silme işlemi başladı:', {
+      conversationId: conversationToDelete.id,
+      currentUser: currentUser.uid
+    });
+
+    try {
+      // Konuşmayı tamamen silmek yerine, kullanıcıyı katılımcılardan çıkar
+      const conversationRef = ref(database, `conversations/${conversationToDelete.id}`);
+      
+      // Mevcut konuşma verilerini al
+      const conversationSnapshot = await get(conversationRef);
+      const currentConversation = conversationSnapshot.val();
+      
+      console.log('Mevcut konuşma verileri:', currentConversation);
+      
+      if (currentConversation) {
+        // Kullanıcıyı katılımcılardan çıkar
+        const updatedParticipants = currentConversation.participants.filter(
+          participantId => participantId !== currentUser.uid
+        );
+        
+        // Katılımcı isimlerini de güncelle
+        const updatedParticipantNames = currentConversation.participantNames.filter(
+          (_, index) => currentConversation.participants[index] !== currentUser.uid
+        );
+        
+        // Unread count'tan kullanıcıyı çıkar
+        const updatedUnreadCount = { ...currentConversation.unreadCount };
+        delete updatedUnreadCount[currentUser.uid];
+        
+        console.log('Güncellenmiş veriler:', {
+          updatedParticipants,
+          updatedParticipantNames,
+          updatedUnreadCount
+        });
+        
+        // Konuşmayı güncelle
+        await update(conversationRef, {
+          participants: updatedParticipants,
+          participantNames: updatedParticipantNames,
+          unreadCount: updatedUnreadCount
+        });
+        
+        console.log('Konuşma başarıyla güncellendi');
+      } else {
+        console.log('Konuşma bulunamadı');
+      }
+
+      setDeleteDialogOpen(false);
+      setConversationToDelete(null);
+    } catch (error) {
+      console.error('Konuşma silme hatası:', error);
+      console.error('Hata detayları:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  };
+
+  const openDeleteDialog = (conversation, event) => {
+    event.stopPropagation(); // Konuşma seçimini engelle
+    setConversationToDelete(conversation);
+    setDeleteDialogOpen(true);
+  };
+
+
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box sx={{ 
-        p: 2, 
-        borderBottom: '1px solid #e0e0e0',
-        background: 'linear-gradient(45deg, #667eea, #764ba2)'
-      }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-            Konuşmalar
-          </Typography>
-          <IconButton 
-            onClick={() => setSearchOpen(true)}
-            sx={{ color: 'white' }}
-          >
-            <AddIcon />
-          </IconButton>
-        </Box>
-      </Box>
-
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       {/* Konuşma Listesi */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+      <Box>
         {conversations.length === 0 ? (
           <Box 
             display="flex" 
             flexDirection="column" 
             alignItems="center" 
             justifyContent="center" 
-            height="100%"
-            p={3}
+            p={4}
+            sx={{ 
+              bgcolor: '#f8f9fa', 
+              borderRadius: 2, 
+              border: '2px dashed #dee2e6',
+              minHeight: '200px'
+            }}
           >
-            <PersonIcon sx={{ fontSize: 60, color: '#ccc', mb: 2 }} />
-            <Typography variant="body1" color="textSecondary" textAlign="center">
+            <PersonIcon sx={{ fontSize: 60, color: '#5A0058', mb: 2 }} />
+            <Typography variant="h6" color="textSecondary" textAlign="center" sx={{ mb: 1 }}>
               Henüz mesajınız yok
             </Typography>
-            <Typography variant="body2" color="textSecondary" textAlign="center">
-              Yeni bir konuşma başlatmak için + butonuna tıklayın
+            <Typography variant="body1" color="textSecondary" textAlign="center">
+              Yeni bir konuşma başlatmak için üstteki arama çubuğunu kullanın
             </Typography>
           </Box>
         ) : (
-          <List sx={{ p: 0 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {conversations.map((conversation) => {
               const otherUser = getOtherParticipant(conversation);
               const unreadCount = conversation.unreadCount?.[currentUser.uid] || 0;
               const isSelected = selectedConversationId === conversation.id;
 
               return (
-                <React.Fragment key={conversation.id}>
-                  <ListItem
-                    button
-                    onClick={() => onConversationSelect(conversation)}
-                    sx={{
-                      backgroundColor: isSelected ? '#f5f5f5' : 'transparent',
-                      '&:hover': { backgroundColor: '#f0f0f0' }
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: '#667eea' }}>
-                        {otherUser.name.charAt(0).toUpperCase()}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography variant="subtitle1" fontWeight="bold">
-                            {otherUser.name}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {formatTime(conversation.lastMessageTime)}
-                          </Typography>
-                        </Box>
-                      }
-                      secondary={
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography 
-                            variant="body2" 
-                            color="textSecondary"
-                            sx={{ 
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              maxWidth: '200px'
-                            }}
-                          >
-                            {conversation.lastMessage || 'Mesaj yok'}
-                          </Typography>
-                          {unreadCount > 0 && (
-                            <Badge 
-                              badgeContent={unreadCount} 
-                              color="primary"
-                              sx={{ ml: 1 }}
-                            />
-                          )}
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  <Divider />
-                </React.Fragment>
+                <Box
+                  key={conversation.id}
+                  onClick={() => onConversationSelect(conversation)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 3,
+                    bgcolor: isSelected ? '#f8f9fa' : 'white',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': { 
+                      bgcolor: '#f5f5f5',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Avatar sx={{ bgcolor: '#5A0058', width: 50, height: 50 }}>
+                    {otherUser.name.charAt(0).toUpperCase()}
+                  </Avatar>
+                  
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ color: '#2c3e50' }}>
+                        {otherUser.name}
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="caption" color="textSecondary">
+                          {formatTime(conversation.lastMessageTime)}
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => openDeleteDialog(conversation, e)}
+                          sx={{
+                            color: '#5A0058',
+                            '&:hover': {
+                              bgcolor: 'rgba(90, 0, 88, 0.1)',
+                              color: '#4A0048'
+                            }
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography 
+                        variant="body2" 
+                        color="textSecondary"
+                        sx={{ 
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '300px'
+                        }}
+                      >
+                        {conversation.lastMessage || 'Mesaj yok'}
+                      </Typography>
+                      {unreadCount > 0 && (
+                        <Badge 
+                          badgeContent={unreadCount} 
+                          color="primary"
+                          sx={{ ml: 1 }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
               );
             })}
-          </List>
+          </Box>
         )}
       </Box>
 
-      {/* Kullanıcı Arama Dialog */}
-      <Dialog 
-        open={searchOpen} 
-        onClose={() => setSearchOpen(false)}
+      {/* Silme Onay Dialogu */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Yeni Konuşma Başlat</DialogTitle>
+        <DialogTitle sx={{ color: '#5A0058', fontWeight: 600 }}>
+          Konuşmayı Listeden Kaldır
+        </DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            placeholder="Kullanıcı ara..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              )
-            }}
-            sx={{ mb: 2 }}
-          />
-          
-          {searchLoading ? (
-            <Box display="flex" justifyContent="center" p={2}>
-              <CircularProgress size={24} />
-            </Box>
-          ) : (
-            <List>
-              {searchResults.map((user) => (
-                <ListItem 
-                  key={user.id} 
-                  button 
-                  onClick={() => handleUserSelect(user)}
-                >
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: '#667eea' }}>
-                      {user.displayName?.charAt(0).toUpperCase()}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText 
-                    primary={user.displayName}
-                    secondary={user.email}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          )}
+          <Typography>
+            {conversationToDelete && (
+              <>
+                <strong>{getOtherParticipant(conversationToDelete).name}</strong> ile olan konuşmayı listenizden kaldırmak istediğinizden emin misiniz?
+              </>
+            )}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Bu işlem sadece sizin mesaj listenizden konuşmayı kaldırır. Karşı tarafın mesajları etkilenmez ve size mesaj göndermeye devam edebilir.
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSearchOpen(false)}>İptal</Button>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{ 
+              color: '#5A0058',
+              '&:hover': {
+                bgcolor: 'rgba(90, 0, 88, 0.1)',
+                color: '#4A0048'
+              }
+            }}
+          >
+            İptal
+          </Button>
+          <Button 
+            onClick={handleDeleteConversation}
+            variant="contained"
+            sx={{ 
+              bgcolor: '#5A0058',
+              '&:hover': { bgcolor: '#4A0048' }
+            }}
+          >
+            Sil
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
