@@ -101,4 +101,7 @@ const theme = createTheme({
   },
 });
 
+// Sage rengi: #728C5A
+export const sageColor = '#728C5A';
+
 export default theme;

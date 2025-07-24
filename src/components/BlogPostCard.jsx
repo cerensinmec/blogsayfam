@@ -13,21 +13,23 @@ import {
 import { Edit as EditIcon, Delete as DeleteIcon, ReadMore as ReadMoreIcon } from '@mui/icons-material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import PropTypes from 'prop-types';
 
-const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, user, navigate, likeCount, userLiked, onLike, onCommentClick, commentCount }) => (
+const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, user, navigate, likeCount, userLiked, onLike, onCommentClick, commentCount, userSaved, onSave }) => (
+  console.log('post',post),
   <Card 
     sx={{ 
-      minHeight: 340,
-      height: '100%', 
+      height: '100%',
+      width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      width: '100%',
-      minWidth: 500,
       border: '1px solid #e0e0e0',
       borderRadius: 2,
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       transition: 'all 0.3s ease',
+      backgroundColor: '#FCFFF5', // Eggshell
       '&:hover': {
         boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
         transform: 'translateY(-2px)'
@@ -58,7 +60,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           fontWeight: 600,
           lineHeight: 1.3,
           mb: 2,
-          color: '#8D6E63',
+          color: '#C44569', // Darker pink
           fontSize: { xs: '1rem', md: '1.25rem' }
         }}
       >
@@ -91,7 +93,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             width: 28, 
             height: 28,
             fontSize: '0.875rem',
-            bgcolor: '#8D6E63'
+            bgcolor: '#C44569' // Darker pink
           }}
         >
           {post.authorName?.charAt(0) || '?'}
@@ -100,7 +102,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           {post.authorName || 'Bilinmeyen Yazar'}
         </Typography>
       </Box>
-      {/* Beğeni satırının hemen yanında, küçük ve sade bir satırda yorum (💬 ikon ve yorum sayısı) alanı ekle */}
+      {/* Beğeni, yorum ve kaydet butonları */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, mt: 1 }}>
         <Box
           onClick={onCommentClick}
@@ -112,11 +114,30 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             '&:active': { transform: 'scale(1.1)' }
           }}
         >
-          <span style={{ fontSize: 20, color: '#8D6E63', marginRight: 4 }}>💬</span>
-          <Typography variant="body2" sx={{ color: '#8D6E63', fontWeight: 600 }}>
+          <span style={{ fontSize: 20, color: '#C44569', marginRight: 4 }}>💬</span>
+          <Typography variant="body2" sx={{ color: '#C44569', fontWeight: 600 }}>
             {commentCount}
           </Typography>
         </Box>
+        
+        {/* Kaydet butonu */}
+        <Box
+          onClick={user ? onSave : undefined}
+          sx={{
+            cursor: user ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+            transition: 'transform 0.1s',
+            '&:active': { transform: user ? 'scale(1.2)' : 'none' }
+          }}
+        >
+          {userSaved ? (
+            <BookmarkIcon sx={{ color: '#ff9800', fontSize: 24 }} />
+          ) : (
+            <BookmarkBorderIcon sx={{ color: '#bdbdbd', fontSize: 24 }} />
+          )}
+        </Box>
+        
         <Box
           onClick={user ? onLike : undefined}
           sx={{
@@ -142,14 +163,14 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
     <CardActions sx={{ p: { xs: 1.5, md: 2 }, pt: 0 }}>
       <Button 
         size="small" 
-        onClick={() => navigate(`/blog/${post.id}`)}
+        onClick={() => navigate(`/blog/${post.firestoreId}`)}
         startIcon={<ReadMoreIcon />}
         sx={{ 
-          color: '#8D6E63',
+          color: '#C44569',
           fontWeight: 500,
           fontSize: { xs: '0.75rem', md: '0.875rem' },
           '&:hover': {
-            backgroundColor: 'rgba(141, 110, 99, 0.08)'
+            backgroundColor: 'rgba(196, 69, 105, 0.08)'
           }
         }}
       >
@@ -175,7 +196,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             size="small" 
             startIcon={<DeleteIcon />} 
             color="error" 
-            onClick={() => onDelete(post.id)}
+            onClick={() => onDelete(post.firestoreId)}
             sx={{ 
               '&:hover': {
                 backgroundColor: 'rgba(244, 67, 54, 0.08)'
@@ -202,7 +223,9 @@ BlogPostCard.propTypes = {
   userLiked: PropTypes.bool,
   onLike: PropTypes.func,
   onCommentClick: PropTypes.func,
-  commentCount: PropTypes.number
+  commentCount: PropTypes.number,
+  userSaved: PropTypes.bool,
+  onSave: PropTypes.func
 };
 
 export default BlogPostCard; 

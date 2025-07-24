@@ -1,7 +1,9 @@
 import React from 'react';
 import { Box, Paper, Typography, Stack, Button, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import TurkeyMap from './TurkeyMap';
-import HomeSidebar from './HomeSidebar';
+import cityCenters from '../constants/data/cityCenters.js';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 const defaultCategories = [
   { name: 'Yaşam', icon: '🌱', color: 'success', path: '/blog?category=yaşam' },
@@ -13,39 +15,59 @@ const defaultCategories = [
 ];
 const defaultStats = { posts: 0, users: 0, views: 0 };
 
-function BlogSidebar({ posts, navigate, categories = defaultCategories, stats = defaultStats, loading = false, showHomeSidebar = false }) {
+function BlogSidebar({ posts, navigate, categories = defaultCategories, stats = defaultStats, loading = false, showHomeSidebar = false, titleColor }) {
   const [selectedType, setSelectedType] = React.useState(null);
   const [selectedCity, setSelectedCity] = React.useState(null);
-  // Türkiye şehirleri ve harita için gerçekçi koordinatlar (viewBox: 0 0 800 600)
-  const turkishCities = {
-    'İstanbul': { x: 170, y: 110 },
-    'Ankara': { x: 410, y: 220 },
-    'İzmir': { x: 120, y: 300 },
-    'Bursa': { x: 200, y: 170 },
-    'Adana': { x: 570, y: 370 },
-    'Antalya': { x: 320, y: 420 },
-    'Konya': { x: 420, y: 340 },
-    'Gaziantep': { x: 670, y: 390 },
-    'Kayseri': { x: 520, y: 260 },
-    'Mersin': { x: 500, y: 400 },
-    'Diyarbakır': { x: 700, y: 300 },
-    'Samsun': { x: 540, y: 120 },
-    'Eskişehir': { x: 320, y: 200 },
-    'Denizli': { x: 200, y: 350 },
-    'Trabzon': { x: 720, y: 100 }
-  };
+  const [allPosts, setAllPosts] = React.useState([]);
+  // Tüm blog yazılarını Firebase'den çek
+  React.useEffect(() => {
+    const fetchAllPosts = async () => {
+      try {
+        const postsRef = collection(db, 'blog-posts');
+        const postsSnapshot = await getDocs(postsRef);
+        const postsData = postsSnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
+        setAllPosts(postsData);
+      } catch (error) {
+        console.error('Tüm postlar yüklenirken hata:', error);
+        // Hata durumunda mevcut posts'u kullan
+        setAllPosts(posts);
+      }
+    };
+    fetchAllPosts();
+  }, [posts]);
 
-  // Blog yazılarında şehir tespit etme
+  // Tüm Türkiye şehirlerini cityCenters'dan al
+  const allTurkishCities = cityCenters.reduce((acc, city) => {
+    acc[city.name] = city;
+    acc[city.dataCityName] = city;
+    return acc;
+  }, {});
+
+  // Blog yazılarında şehir tespit etme (tüm postları kullan)
   const detectCitiesInPosts = () => {
     const cityPosts = {};
-    posts.forEach(post => {
+    allPosts.forEach(post => {
       const content = (post.title + ' ' + post.content).toLowerCase();
-      Object.keys(turkishCities).forEach(city => {
-        if (content.includes(city.toLowerCase())) {
-          if (!cityPosts[city]) {
-            cityPosts[city] = [];
+      
+      // Tüm şehirleri kontrol et
+      cityCenters.forEach(city => {
+        const cityName = city.name.toLowerCase();
+        const dataCityName = city.dataCityName.toLowerCase();
+        
+        // Tam kelime eşleştirmesi için regex kullan
+        const cityNameRegex = new RegExp(`\\b${cityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        const dataCityNameRegex = new RegExp(`\\b${dataCityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        
+        if (cityNameRegex.test(content) || dataCityNameRegex.test(content)) {
+          // Hem normal isim hem de data isim için kaydet
+          if (!cityPosts[city.name]) {
+            cityPosts[city.name] = [];
           }
-          cityPosts[city].push(post);
+          if (!cityPosts[city.dataCityName]) {
+            cityPosts[city.dataCityName] = [];
+          }
+          cityPosts[city.name].push(post);
+          cityPosts[city.dataCityName].push(post);
         }
       });
     });
@@ -54,9 +76,9 @@ function BlogSidebar({ posts, navigate, categories = defaultCategories, stats = 
 
   const cityPosts = detectCitiesInPosts();
   // Kısa yazı: 500 karakterden az, Uzun yazı: 1000 karakterden fazla
-  const shortPosts = posts.filter(p => p.content.length < 500);
-  const longPosts = posts.filter(p => p.content.length > 1000);
-  const newestPosts = [...posts].sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds).slice(0, 5);
+  const shortPosts = (posts || []).filter(p => p.content && p.content.length < 500);
+  const longPosts = (posts || []).filter(p => p.content && p.content.length > 1000);
+  const newestPosts = [...(posts || [])].sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds).slice(0, 5);
 
   let resultList = [];
   if (selectedType === 'short') resultList = shortPosts;
@@ -70,15 +92,14 @@ function BlogSidebar({ posts, navigate, categories = defaultCategories, stats = 
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, bgcolor: '#F3EDE7', height: '100vh', minWidth: 0, p: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, bgcolor: 'transparent', height: '100vh', minWidth: 0, p: 2 }}>
       {/* Kategoriler ve İstatistikler */}
-      {showHomeSidebar && (
-        <Paper sx={{ p: 0, mb: 1, boxShadow: 'none', bgcolor: 'transparent' }}>
-          <HomeSidebar stats={stats} categories={categories} posts={posts.slice(0, 3)} loading={loading} />
-        </Paper>
-      )}
+      {/* HomeSidebar kaldırıldı */}
       {/* Anket Kutusu */}
       <Paper elevation={2} sx={{ p: 2, borderRadius: 2, bgcolor: 'background.paper', mb: 2, width: '100%', maxWidth: 340, mx: 'auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', mt: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: titleColor || '#8D6E63', fontSize: '1.1rem' }}>
+          Blog Yazıları
+        </Typography>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#8D6E63', fontSize: '1.1rem' }}>
           Bugün Ne Okumak İstersin?
         </Typography>

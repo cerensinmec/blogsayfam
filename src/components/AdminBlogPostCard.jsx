@@ -28,21 +28,21 @@ const AdminBlogPostCard = ({ post, onView, onEdit, onDelete, formatDate }) => (
         <Box>
           <IconButton
             size="small"
-            onClick={() => onView(post.id)}
+            onClick={() => onView(post.firestoreId)}
             color="primary"
           >
             <VisibilityIcon />
           </IconButton>
           <IconButton
             size="small"
-            onClick={() => onEdit(post.id)}
+            onClick={() => onEdit(post.firestoreId)}
             color="primary"
           >
             <EditIcon />
           </IconButton>
           <IconButton
             size="small"
-            onClick={() => onDelete(post.id)}
+            onClick={() => onDelete(post.firestoreId)}
             color="error"
           >
             <DeleteIcon />

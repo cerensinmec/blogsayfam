@@ -7,7 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import AuthForm from './AuthForm';
 
-function Header() {
+function Header({ headerColor, headerTextColor }) {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
@@ -48,18 +48,21 @@ function Header() {
   };
 
   const menuItems = [
-    { text: 'Anasayfa', path: '/' },
     { text: 'Akış', path: '/feed' },
+    { text: 'Mesajlar', path: '/messages' },
   ];
 
-  const userMenuItems = [
+  const userMenuItems = user ? [
+    { text: 'Profilim', path: `/user/${user.uid}` },
+    { text: 'Admin Paneli', path: '/admin' },
+  ] : [
     { text: 'Profilim', path: '/profile/edit' },
     { text: 'Admin Paneli', path: '/admin' },
   ];
 
   return (
     <>
-      <AppBar position="static" sx={{ background: 'primary.main', color: 'primary.contrastText', boxShadow: 2 }}>
+      <AppBar position="static" sx={{ background: 'white', color: '#2c3e50', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <Toolbar>
           {/* Sarı yıldız emojisi */}
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2, fontSize: { xs: 28, md: 36 } }}>
@@ -67,12 +70,19 @@ function Header() {
           </Box>
           <Typography 
             variant="h6" 
+            component={Link}
+            to="/"
             sx={{ 
               flexGrow: 1, 
               fontWeight: 700, 
               letterSpacing: 2, 
-              color: 'primary.contrastText',
-              fontSize: { xs: '1.1rem', md: '1.25rem' }
+              color: '#2c3e50',
+              fontSize: { xs: '1.1rem', md: '1.25rem' },
+              textDecoration: 'none',
+              cursor: 'pointer',
+              '&:hover': {
+                color: '#667eea'
+              }
             }}
           >
             Bloggi
@@ -80,8 +90,11 @@ function Header() {
 
           {/* Desktop Menu */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
+            <Button component={Link} to="/" sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
+              Anasayfa
+            </Button>
             {menuItems.map((item) => (
-              <Button key={item.text} component={Link} to={item.path} color="inherit">
+              <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
                 {item.text}
               </Button>
             ))}
@@ -89,14 +102,13 @@ function Header() {
             {user ? (
               <>
                 {userMenuItems.map((item) => (
-                  <Button key={item.text} component={Link} to={item.path} color="inherit">
+                  <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
                     {item.text}
                   </Button>
                 ))}
                 <IconButton
-                  color="inherit"
+                  sx={{ ml: 1, color: '#2c3e50', '&:hover': { color: '#667eea' } }}
                   onClick={handleMenuOpen}
-                  sx={{ ml: 1 }}
                 >
                   <AccountCircleIcon />
                 </IconButton>
@@ -114,9 +126,16 @@ function Header() {
             ) : (
               <Button 
                 variant="outlined" 
-                color="inherit" 
                 onClick={() => setAuthDialogOpen(true)}
-                sx={{ borderColor: 'rgba(255,255,255,0.5)', '&:hover': { borderColor: 'white' } }}
+                sx={{ 
+                  borderColor: '#2c3e50', 
+                  color: '#2c3e50',
+                  fontWeight: 600,
+                  '&:hover': { 
+                    borderColor: '#667eea',
+                    color: '#667eea'
+                  } 
+                }}
               >
                 Giriş Yap
               </Button>
@@ -126,7 +145,7 @@ function Header() {
           {/* Mobile Menu Button */}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
-              color="inherit"
+              sx={{ color: '#2c3e50', '&:hover': { color: '#667eea' } }}
               onClick={() => setMobileMenuOpen(true)}
             >
               <MenuIcon />
@@ -152,6 +171,18 @@ function Header() {
             Menu
           </Typography>
           <List>
+            <ListItem 
+              component={Link} 
+              to="/"
+              onClick={handleMobileMenuClose}
+              sx={{ 
+                color: 'text.primary', 
+                textDecoration: 'none',
+                '&:hover': { bgcolor: 'action.hover' }
+              }}
+            >
+              <ListItemText primary="Anasayfa" />
+            </ListItem>
             {menuItems.map((item) => (
               <ListItem 
                 key={item.text} 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, CircularProgress, Alert, Card, CardActionArea, Avatar } from '@mui/material';
 import PropTypes from 'prop-types';
 
-const ActiveAuthors = ({ users, loading, error, handleUserClick }) => (
+const ActiveAuthors = ({ users, loading, error, handleUserClick, titleColor }) => (
   <Box sx={{
     width: { xs: '100%', md: 340 },
     minWidth: 280,
@@ -17,7 +17,7 @@ const ActiveAuthors = ({ users, loading, error, handleUserClick }) => (
     borderRadius: 0,
     justifyContent: 'flex-start',
   }}>
-    <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', mt: 4 }}>
+    <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', mt: 4, color: titleColor || undefined }}>
       Aktif Yazarlar
     </Typography>
     {loading ? (
@@ -30,7 +30,15 @@ const ActiveAuthors = ({ users, loading, error, handleUserClick }) => (
       <Box sx={{ width: '100%' }}>
         {users.map((user) => (
           <Card key={user.id} sx={{ mb: 2 }}>
-            <CardActionArea onClick={() => handleUserClick(user.id)}>
+            <CardActionArea
+              onClick={() => handleUserClick(user.id)}
+              sx={{
+                transition: 'background 0.2s',
+                '&:hover': { background: '#C44569' },
+                '&.Mui-focusVisible': { background: '#C44569' },
+                '&:active': { background: '#C44569' }
+              }}
+            >
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
                 <Avatar src={user.photoURL || ''} sx={{ width: 80, height: 80, mb: 2 }} />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
