@@ -301,6 +301,15 @@ function BlogDetailPage() {
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/blog')}
+          sx={{
+            borderColor: '#5A0058',
+            color: '#5A0058',
+            '&:hover': {
+              bgcolor: '#5A0058',
+              color: 'white',
+              borderColor: '#5A0058'
+            }
+          }}
         >
           Blog'a Dön
         </Button>
@@ -311,13 +320,22 @@ function BlogDetailPage() {
   if (!post) {
     return (
       <Container sx={{ py: 4 }}>
-        <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ textAlign: 'center', mb: 2, color: '#5A0058', fontWeight: 600 }}>
           Blog yazısı bulunamadı.
         </Typography>
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/blog')}
+          sx={{
+            borderColor: '#5A0058',
+            color: '#5A0058',
+            '&:hover': {
+              bgcolor: '#5A0058',
+              color: 'white',
+              borderColor: '#5A0058'
+            }
+          }}
         >
           Blog'a Dön
         </Button>
@@ -326,70 +344,113 @@ function BlogDetailPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)', bgcolor: 'white' }}>
       <Breadcrumbs sx={{ mb: 3 }}>
-        <Link component={RouterLink} to="/" color="inherit" underline="hover">
+        <Link 
+          component={RouterLink} 
+          to="/" 
+          sx={{ 
+            color: '#5A0058', 
+            textDecoration: 'none',
+            '&:hover': {
+              color: '#4A0047',
+              textDecoration: 'underline'
+            }
+          }}
+        >
           Anasayfa
         </Link>
-        <Link component={RouterLink} to="/blog" color="inherit" underline="hover">
+        <Link 
+          component={RouterLink} 
+          to="/blog" 
+          sx={{ 
+            color: '#5A0058', 
+            textDecoration: 'none',
+            '&:hover': {
+              color: '#4A0047',
+              textDecoration: 'underline'
+            }
+          }}
+        >
           Blog
         </Link>
-        <Typography color="text.primary">{post.title}</Typography>
+        <Typography sx={{ color: '#5A0058', fontWeight: 600 }}>{post.title}</Typography>
       </Breadcrumbs>
       <Grid container spacing={4}>
         <Grid item xs={12} lg={8}>
-          <Card sx={{ mb: 4 }}>
-            <CardContent>
+          <Card sx={{ 
+            mb: 4,
+            bgcolor: 'white',
+            border: '3px solid #5A0058',
+            borderRadius: 2,
+            boxShadow: '0 4px 8px rgba(90, 0, 88, 0.1)'
+          }}>
+            <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <Typography variant="h4" component="span">
+                  <Typography variant="h4" component="span" sx={{ color: '#5A0058' }}>
                     {getCategoryIcon(post.category)}
                   </Typography>
                   <Chip
                     label={post.category}
-                    color={getCategoryColor(post.category)}
+                    sx={{
+                      bgcolor: '#87CEEB',
+                      color: '#333',
+                      fontWeight: 600,
+                      fontSize: '0.9rem'
+                    }}
                     size="medium"
                   />
                 </Box>
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
+                <Typography variant="h3" component="h1" gutterBottom sx={{ 
+                  fontWeight: 700, 
+                  lineHeight: 1.2,
+                  color: '#5A0058',
+                  mb: 3
+                }}>
                   {post.title}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <AccessTimeIcon fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary">
+                    <AccessTimeIcon fontSize="small" sx={{ color: '#5A0058' }} />
+                    <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
                       {readingTime} dakika okuma
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <CalendarIcon fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary">
+                    <CalendarIcon fontSize="small" sx={{ color: '#5A0058' }} />
+                    <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
                       {formatDate(post.createdAt)}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <FavoriteIcon fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary">
+                    <FavoriteIcon fontSize="small" sx={{ color: '#5A0058' }} />
+                    <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
                       {likeCount} Beğeni
                     </Typography>
                   </Box>
                   {post.commentCount > 0 && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <CommentIcon fontSize="small" color="action" />
-                      <Typography variant="body2" color="text.secondary">
+                      <CommentIcon fontSize="small" sx={{ color: '#5A0058' }} />
+                      <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
                         {post.commentCount} yorum
                       </Typography>
                     </Box>
                   )}
                 </Box>
                 {post.updatedAt && post.updatedAt.toDate().getTime() !== post.createdAt.toDate().getTime() && (
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" sx={{ color: '#5A0058', fontWeight: 600 }}>
                     Son güncelleme: {formatDate(post.updatedAt)}
                   </Typography>
                 )}
               </Box>
-              <Divider sx={{ mb: 3 }} />
-              <Typography variant="body1" paragraph sx={{ lineHeight: 1.8, fontSize: '1.1rem' }}>
+              <Divider sx={{ mb: 3, borderColor: '#5A0058', opacity: 0.3 }} />
+              <Typography variant="body1" paragraph sx={{ 
+                lineHeight: 1.8, 
+                fontSize: '1.1rem',
+                color: '#333',
+                fontWeight: 500
+              }}>
                 {post.content.split('\n').map((paragraph, index) => (
                   <span key={index}>
                     {paragraph}
@@ -398,7 +459,22 @@ function BlogDetailPage() {
                 ))}
               </Typography>
               {/* Beğeni (kalp ve sayı) alanını ana Box'ın dışına, sayfanın altına taşı. */}
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mt: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+                <Box
+                  onClick={handleOpenComments}
+                  sx={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    transition: 'transform 0.1s',
+                    '&:active': { transform: 'scale(1.1)' }
+                  }}
+                >
+                  <span style={{ fontSize: 22, color: '#5A0058', marginRight: 4 }}>💬</span>
+                  <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
+                    {commentCount} yorum
+                  </Typography>
+                </Box>
                 <Box
                   onClick={user ? handleLike : undefined}
                   sx={{
@@ -410,47 +486,43 @@ function BlogDetailPage() {
                   }}
                 >
                   {userLiked ? (
-                    <FavoriteIcon sx={{ color: '#e53935', fontSize: 24 }} />
+                    <FavoriteIcon sx={{ color: '#5A0058', fontSize: 24 }} />
                   ) : (
-                    <FavoriteBorderIcon sx={{ color: '#bdbdbd', fontSize: 24 }} />
+                    <FavoriteBorderIcon sx={{ color: '#5A0058', fontSize: 24 }} />
                   )}
-                  <Typography variant="body2" sx={{ ml: 0.5, color: userLiked ? '#e53935' : '#757575', fontWeight: 600 }}>
+                  <Typography variant="body2" sx={{ ml: 0.5, color: '#5A0058', fontWeight: 600 }}>
                     {likeCount}
-                  </Typography>
-                </Box>
-              </Box>
-              {/* Blog içeriğinin hemen altına, küçük ve sade bir satırda yorum (💬 ikon ve yorum sayısı) alanı ekle */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                <Box
-                  onClick={handleOpenComments}
-                  sx={{
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    transition: 'transform 0.1s',
-                    '&:active': { transform: 'scale(1.1)' }
-                  }}
-                >
-                  <span style={{ fontSize: 22, color: '#8D6E63', marginRight: 4 }}>💬</span>
-                  <Typography variant="body2" sx={{ color: '#8D6E63', fontWeight: 600 }}>
-                    {commentCount}
                   </Typography>
                 </Box>
               </Box>
             </CardContent>
           </Card>
           {openComments && (
-            <Box sx={{ mt: 2, mb: 2, p: 2, border: '1px solid #eee', borderRadius: 2, bgcolor: '#fff' }}>
-              <Typography variant="h6" sx={{ mb: 1, color: '#8D6E63', fontWeight: 700 }}>Yorumlar</Typography>
+            <Box sx={{ 
+              mt: 2, 
+              mb: 2, 
+              p: 3, 
+              border: '2px solid #5A0058', 
+              borderRadius: 2, 
+              bgcolor: 'white',
+              boxShadow: '0 2px 4px rgba(90, 0, 88, 0.1)'
+            }}>
+              <Typography variant="h6" sx={{ mb: 2, color: '#5A0058', fontWeight: 700 }}>Yorumlar</Typography>
               <Box sx={{ maxHeight: 220, overflowY: 'auto', mb: 2 }}>
                 {commentsList.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">Henüz yorum yok.</Typography>
+                  <Typography variant="body2" sx={{ color: '#5A0058', fontStyle: 'italic' }}>Henüz yorum yok.</Typography>
                 ) : (
                   commentsList.map(c => (
-                    <Box key={c.id} sx={{ mb: 1.5, p: 1, borderRadius: 1, bgcolor: '#f9f6f4' }}>
-                      <Typography variant="subtitle2" sx={{ color: '#8D6E63', fontWeight: 600 }}>{c.displayName || 'Kullanıcı'}</Typography>
-                      <Typography variant="body2" sx={{ color: '#333' }}>{c.comment}</Typography>
-                      <Typography variant="caption" color="text.secondary">{c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : ''}</Typography>
+                    <Box key={c.id} sx={{ 
+                      mb: 1.5, 
+                      p: 2, 
+                      borderRadius: 1, 
+                      bgcolor: 'rgba(90, 0, 88, 0.05)',
+                      border: '1px solid rgba(90, 0, 88, 0.1)'
+                    }}>
+                      <Typography variant="subtitle2" sx={{ color: '#5A0058', fontWeight: 600 }}>{c.displayName || 'Kullanıcı'}</Typography>
+                      <Typography variant="body2" sx={{ color: '#333', mt: 0.5 }}>{c.comment}</Typography>
+                      <Typography variant="caption" sx={{ color: '#5A0058', opacity: 0.7 }}>{c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : ''}</Typography>
                     </Box>
                   ))
                 )}
@@ -462,12 +534,37 @@ function BlogDetailPage() {
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     placeholder="Yorumunuzu yazın..."
-                    style={{ flex: 1, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                    style={{ 
+                      flex: 1, 
+                      padding: 12, 
+                      borderRadius: 4, 
+                      border: '2px solid #87CEEB',
+                      fontSize: '14px',
+                      outline: 'none',
+                      '&:focus': {
+                        borderColor: '#5A0058'
+                      }
+                    }}
                   />
-                  <Button variant="contained" onClick={handleAddComment} disabled={!commentText.trim()} sx={{ bgcolor: '#8D6E63' }}>Gönder</Button>
+                  <Button 
+                    variant="contained" 
+                    onClick={handleAddComment} 
+                    disabled={!commentText.trim()} 
+                    sx={{ 
+                      bgcolor: '#5A0058',
+                      '&:hover': {
+                        bgcolor: '#4A0047'
+                      },
+                      '&:disabled': {
+                        bgcolor: '#ccc'
+                      }
+                    }}
+                  >
+                    Gönder
+                  </Button>
                 </Box>
               ) : (
-                <Typography variant="body2" color="text.secondary">Yorum yapmak için giriş yapmalısınız.</Typography>
+                <Typography variant="body2" sx={{ color: '#5A0058', fontStyle: 'italic' }}>Yorum yapmak için giriş yapmalısınız.</Typography>
               )}
             </Box>
           )}
@@ -476,23 +573,49 @@ function BlogDetailPage() {
               variant="outlined"
               startIcon={<ArrowBackIcon />}
               onClick={() => navigate('/blog')}
+              sx={{
+                borderColor: '#5A0058',
+                color: '#5A0058',
+                '&:hover': {
+                  bgcolor: '#5A0058',
+                  color: 'white',
+                  borderColor: '#5A0058'
+                }
+              }}
             >
               Blog'a Dön
             </Button>
-            {user && (user.uid === post.authorId || user.email === 'admin@example.com') && (
+            {user && user.uid === post.authorId && (
               <>
                 <Button
                   variant="outlined"
                   startIcon={<EditIcon />}
                   onClick={() => navigate(`/blog/edit/${postId}`)}
+                  sx={{
+                    borderColor: '#5A0058',
+                    color: '#5A0058',
+                    '&:hover': {
+                      bgcolor: '#5A0058',
+                      color: 'white',
+                      borderColor: '#5A0058'
+                    }
+                  }}
                 >
                   Düzenle
                 </Button>
                 <Button
                   variant="outlined"
-                  color="error"
                   startIcon={<DeleteIcon />}
                   onClick={handleDeletePost}
+                  sx={{
+                    borderColor: '#e53935',
+                    color: '#e53935',
+                    '&:hover': {
+                      bgcolor: '#e53935',
+                      color: 'white',
+                      borderColor: '#e53935'
+                    }
+                  }}
                 >
                   Sil
                 </Button>

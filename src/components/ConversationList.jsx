@@ -20,7 +20,9 @@ import {
   query, 
   where, 
   orderBy, 
-  onSnapshot
+  onSnapshot,
+  doc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { ref, onValue, off, get, update } from 'firebase/database';
@@ -51,19 +53,60 @@ const ConversationList = ({
           ...conversation
         }));
         
-        const userConversations = allConversations.filter(conversation => 
-          conversation.participants && conversation.participants.includes(currentUser.uid)
+        // Tüm konuşmaları al (silinmiş olanlar dahil)
+        const allUserConversations = allConversations.filter(conversation => 
+          conversation.participants && 
+          conversation.participants.includes(currentUser.uid)
         );
         
+        // Her kullanıcı için sadece bir konuşma göster (en son aktif olanı)
+        const userConversationMap = new Map();
+        
+        allUserConversations.forEach(conversation => {
+          const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
+          
+          if (!userConversationMap.has(otherUserId)) {
+            // İlk konuşma - eğer silinmemişse göster
+            if (!conversation.hiddenFor?.[currentUser.uid]) {
+              userConversationMap.set(otherUserId, conversation);
+            }
+          } else {
+            // Eğer aynı kullanıcıyla başka bir konuşma varsa, en son mesajı olanı seç
+            const existingConversation = userConversationMap.get(otherUserId);
+            const existingTime = existingConversation.lastMessageTime || 0;
+            const currentTime = conversation.lastMessageTime || 0;
+            
+            // Eğer mevcut konuşma silinmişse ve yeni konuşma silinmemişse, yeni konuşmayı seç
+            const existingHidden = existingConversation.hiddenFor?.[currentUser.uid];
+            const currentHidden = conversation.hiddenFor?.[currentUser.uid];
+            
+            if (!currentHidden && existingHidden) {
+              // Yeni konuşma silinmemiş, mevcut silinmiş - yeni konuşmayı seç
+              userConversationMap.set(otherUserId, conversation);
+            } else if (currentHidden && !existingHidden) {
+              // Yeni konuşma silinmiş, mevcut silinmemiş - mevcut konuşmayı koru
+              // Hiçbir şey yapma
+            } else if (!currentHidden && !existingHidden) {
+              // Her ikisi de silinmemiş - en son mesajı olanı seç
+              if (currentTime > existingTime) {
+                userConversationMap.set(otherUserId, conversation);
+              }
+            }
+            // Her ikisi de silinmişse hiçbir şey yapma
+          }
+        });
+        
+        const filteredConversations = Array.from(userConversationMap.values());
+        
         // Konuşmaları lastMessageTime'e göre sırala
-        userConversations.sort((a, b) => {
+        filteredConversations.sort((a, b) => {
           if (a.lastMessageTime && b.lastMessageTime) {
             return b.lastMessageTime - a.lastMessageTime;
           }
           return 0;
         });
         
-        setConversations(userConversations);
+        setConversations(filteredConversations);
       } else {
         setConversations([]);
       }
@@ -100,13 +143,59 @@ const ConversationList = ({
   const getOtherParticipant = (conversation) => {
     const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
     const otherUserIndex = conversation.participants.indexOf(otherUserId);
-    const otherUserName = conversation.participantNames?.[otherUserIndex] || 'Kullanıcı';
+    
+    // Önce Firestore'dan gelen gerçek kullanıcı ismini kullan
+    const realUserName = userNames[otherUserId];
+    
+    // Eğer gerçek isim yoksa, conversation'daki ismi kullan
+    const otherUserName = realUserName || conversation.participantNames?.[otherUserIndex] || 'Kullanıcı';
     
     return {
       id: otherUserId,
       name: otherUserName
     };
   };
+
+  // Kullanıcı bilgilerini Firestore'dan al
+  const [userNames, setUserNames] = useState({});
+
+  // Kullanıcı isimlerini yükle
+  useEffect(() => {
+    const loadUserNames = async () => {
+      if (!conversations.length) return;
+      
+      // Sadece görünen konuşmaların kullanıcılarını al
+      const userIds = conversations.map(conv => {
+        const otherUserId = conv.participants.find(id => id !== currentUser.uid);
+        return otherUserId;
+      }).filter(Boolean);
+      
+      // Aynı kullanıcı ID'lerini tekrar etmeyecek şekilde al
+      const uniqueUserIds = [...new Set(userIds)];
+      const names = {};
+      
+      for (const userId of uniqueUserIds) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            names[userId] = userData.displayName || 
+                           userData.firstName || 
+                           userData.username || 
+                           userData.email?.split('@')[0] || 
+                           'Kullanıcı';
+          }
+        } catch (error) {
+          console.error('Kullanıcı bilgisi yükleme hatası:', error);
+          names[userId] = 'Kullanıcı';
+        }
+      }
+      
+      setUserNames(names);
+    };
+    
+    loadUserNames();
+  }, [conversations, currentUser.uid]);
 
   // Konuşma silme fonksiyonu - Sadece kendi listesinden kaldır
   const handleDeleteConversation = async () => {
@@ -118,7 +207,7 @@ const ConversationList = ({
     });
 
     try {
-      // Konuşmayı tamamen silmek yerine, kullanıcıyı katılımcılardan çıkar
+      // Konuşmayı tamamen silmek yerine, kullanıcının konuşmayı görüp göremeyeceğini kontrol eden bir alan ekle
       const conversationRef = ref(database, `conversations/${conversationToDelete.id}`);
       
       // Mevcut konuşma verilerini al
@@ -128,31 +217,19 @@ const ConversationList = ({
       console.log('Mevcut konuşma verileri:', currentConversation);
       
       if (currentConversation) {
-        // Kullanıcıyı katılımcılardan çıkar
-        const updatedParticipants = currentConversation.participants.filter(
-          participantId => participantId !== currentUser.uid
-        );
-        
-        // Katılımcı isimlerini de güncelle
-        const updatedParticipantNames = currentConversation.participantNames.filter(
-          (_, index) => currentConversation.participants[index] !== currentUser.uid
-        );
-        
-        // Unread count'tan kullanıcıyı çıkar
-        const updatedUnreadCount = { ...currentConversation.unreadCount };
-        delete updatedUnreadCount[currentUser.uid];
+        // Kullanıcının konuşmayı görüp göremeyeceğini kontrol eden alanı güncelle
+        const updatedHiddenFor = {
+          ...currentConversation.hiddenFor,
+          [currentUser.uid]: true
+        };
         
         console.log('Güncellenmiş veriler:', {
-          updatedParticipants,
-          updatedParticipantNames,
-          updatedUnreadCount
+          hiddenFor: updatedHiddenFor
         });
         
-        // Konuşmayı güncelle
+        // Konuşmayı güncelle - katılımcıları değiştirme, sadece hiddenFor alanını güncelle
         await update(conversationRef, {
-          participants: updatedParticipants,
-          participantNames: updatedParticipantNames,
-          unreadCount: updatedUnreadCount
+          hiddenFor: updatedHiddenFor
         });
         
         console.log('Konuşma başarıyla güncellendi');
@@ -306,12 +383,9 @@ const ConversationList = ({
           <Typography>
             {conversationToDelete && (
               <>
-                <strong>{getOtherParticipant(conversationToDelete).name}</strong> ile olan konuşmayı listenizden kaldırmak istediğinizden emin misiniz?
+                <strong>{getOtherParticipant(conversationToDelete).name}</strong> ile olan sohbeti silmek istediğinizden emin misiniz?
               </>
             )}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Bu işlem sadece sizin mesaj listenizden konuşmayı kaldırır. Karşı tarafın mesajları etkilenmez ve size mesaj göndermeye devam edebilir.
           </Typography>
         </DialogContent>
         <DialogActions>

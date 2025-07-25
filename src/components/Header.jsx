@@ -6,6 +6,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import AuthForm from './AuthForm';
+import { themeColors } from '../theme/theme';
 
 function Header({ headerColor, headerTextColor }) {
   const [user, setUser] = useState(null);
@@ -54,10 +55,8 @@ function Header({ headerColor, headerTextColor }) {
 
   const userMenuItems = user ? [
     { text: 'Profilim', path: `/user/${user.uid}` },
-    { text: 'Admin Paneli', path: '/admin' },
   ] : [
     { text: 'Profilim', path: '/profile/edit' },
-    { text: 'Admin Paneli', path: '/admin' },
   ];
 
   return (
@@ -81,7 +80,7 @@ function Header({ headerColor, headerTextColor }) {
               textDecoration: 'none',
               cursor: 'pointer',
               '&:hover': {
-                color: '#667eea'
+                color: themeColors.accent
               }
             }}
           >
@@ -90,11 +89,11 @@ function Header({ headerColor, headerTextColor }) {
 
           {/* Desktop Menu */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
-            <Button component={Link} to="/" sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
+            <Button component={Link} to="/" sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: themeColors.accent } }}>
               Anasayfa
             </Button>
             {menuItems.map((item) => (
-              <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
+              <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: themeColors.accent } }}>
                 {item.text}
               </Button>
             ))}
@@ -102,12 +101,12 @@ function Header({ headerColor, headerTextColor }) {
             {user ? (
               <>
                 {userMenuItems.map((item) => (
-                  <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: '#667eea' } }}>
-                    {item.text}
-                  </Button>
+                                <Button key={item.text} component={Link} to={item.path} sx={{ color: '#2c3e50', fontWeight: 600, '&:hover': { color: themeColors.accent } }}>
+                {item.text}
+              </Button>
                 ))}
                 <IconButton
-                  sx={{ ml: 1, color: '#2c3e50', '&:hover': { color: '#667eea' } }}
+                  sx={{ ml: 1, color: '#2c3e50', '&:hover': { color: themeColors.accent } }}
                   onClick={handleMenuOpen}
                 >
                   <AccountCircleIcon />
@@ -132,8 +131,8 @@ function Header({ headerColor, headerTextColor }) {
                   color: '#2c3e50',
                   fontWeight: 600,
                   '&:hover': { 
-                    borderColor: '#667eea',
-                    color: '#667eea'
+                    borderColor: themeColors.accent,
+                    color: themeColors.accent
                   } 
                 }}
               >
@@ -145,7 +144,7 @@ function Header({ headerColor, headerTextColor }) {
           {/* Mobile Menu Button */}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
-              sx={{ color: '#2c3e50', '&:hover': { color: '#667eea' } }}
+              sx={{ color: '#2c3e50', '&:hover': { color: themeColors.accent } }}
               onClick={() => setMobileMenuOpen(true)}
             >
               <MenuIcon />

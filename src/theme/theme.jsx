@@ -3,16 +3,28 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4E342E', // daha koyu kahverengi
-      light: '#7B5E57',
-      dark: '#260e04',
+      main: '#5A0058', // koyu mor - ana renk
+      light: '#7A4A7A',
+      dark: '#4A0047',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#8D6E63', // daha koyu açık kahverengi
-      light: '#BCAAA4',
-      dark: '#5f4339',
+      main: '#8B5A8B', // orta mor - ikincil renk
+      light: '#A67BA6',
+      dark: '#6B4A6B',
       contrastText: '#fff',
+    },
+    accent: {
+      main: '#667eea', // mavi - vurgu rengi
+      light: '#8BA3F0',
+      dark: '#5A6FD8',
+      contrastText: '#fff',
+    },
+    category: {
+      main: '#87CEEB', // açık mavi - kategori rengi
+      light: '#A8DDF0',
+      dark: '#6BB8D8',
+      contrastText: '#333',
     },
     background: {
       default: '#F3EDE7', // kahverenginin en açık tonu
@@ -29,9 +41,9 @@ const theme = createTheme({
       main: '#F39C12',
     },
     info: {
-      main: '#8D6E63', // kahverengi tonu
-      light: '#BCAAA4',
-      dark: '#5f4339',
+      main: '#667eea', // mavi tonu
+      light: '#8BA3F0',
+      dark: '#5A6FD8',
       contrastText: '#fff',
     },
     success: {
@@ -101,7 +113,16 @@ const theme = createTheme({
   },
 });
 
-// Sage rengi: #728C5A
+// Yeni tema renkleri
+export const themeColors = {
+  primary: '#5A0058',
+  secondary: '#8B5A8B',
+  accent: '#667eea',
+  category: '#87CEEB',
+  sage: '#728C5A'
+};
+
+// Eski sage rengi (geriye uyumluluk için)
 export const sageColor = '#728C5A';
 
 export default theme;
