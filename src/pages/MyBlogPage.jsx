@@ -25,14 +25,7 @@ function MyBlogPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 
-  const categories = [
-    { title: 'Kişisel Bilgiler', route: '/kisisel-bilgiler', emoji: '👤' },
-    { title: 'Eğitim', route: '/egitim', emoji: '🎓' },
-    { title: 'Memleket', route: '/memleket', emoji: '🏠' },
-    { title: 'Seyahatlerim', route: '/seyahatlerim', emoji: '✈️' },
-    { title: 'Hobilerim', route: '/hobilerim', emoji: '🎨' },
-    { title: 'Dizi/Film', route: '/dizi-film', emoji: '🎬' }
-  ];
+  const categories = [];
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
