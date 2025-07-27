@@ -3,7 +3,7 @@ import { Box, Typography, CircularProgress, Card, Button, Grid, CardContent, Chi
 import PropTypes from 'prop-types';
 import BlogPostCard from './BlogPostCard';
 import { db } from '../firebase/config';
-import { collection, doc, onSnapshot, setDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, setDoc, deleteDoc, addDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuth';
 
 const BlogPosts = ({ posts, loading, error, navigate, formatDate, titleColor }) => {
@@ -14,6 +14,8 @@ const BlogPosts = ({ posts, loading, error, navigate, formatDate, titleColor }) 
   const [commentModal, setCommentModal] = useState({ open: false, postId: null });
   const [commentText, setCommentText] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
+  const [commentsList, setCommentsList] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
   // Beğeni, yorum ve kaydet dinleyicileri
   useEffect(() => {
@@ -126,27 +128,57 @@ console.log('useruseruser',user);
   };
 
   // Yorum modalını aç
-  const handleOpenCommentModal = (post) => {
-    setCommentModal({ open: true, postId: post.firestoreId });
+  const handleOpenCommentModal = async (post) => {
+    // Post ID'sini doğru şekilde al
+    const postId = post.firestoreId || post.id;
+    
+    setCommentModal({ open: true, postId: postId });
     setCommentText('');
+    setCommentsLoading(true);
+    
+    try {
+      // Yorumları getir
+      const commentsRef = collection(db, 'blog-posts', postId, 'comments');
+      const q = query(commentsRef, orderBy('createdAt', 'asc'));
+      const snapshot = await getDocs(q);
+      const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCommentsList(comments);
+    } catch (error) {
+      console.error('Yorumlar yüklenirken hata:', error);
+      setCommentsList([]);
+    } finally {
+      setCommentsLoading(false);
+    }
   };
   // Yorum modalını kapat
   const handleCloseCommentModal = () => {
     setCommentModal({ open: false, postId: null });
     setCommentText('');
+    setCommentsList([]);
   };
   // Yorum ekle
   const handleAddComment = async () => {
     if (!user || !commentText.trim() || !commentModal.postId) return;
     setCommentLoading(true);
-    await addDoc(collection(db, 'blog-posts', commentModal.postId, 'comments'), {
-      userId: user.uid,
-      displayName: user.displayName || user.username || user.email,
-      comment: commentText,
-      createdAt: new Date()
-    });
-    setCommentLoading(false);
-    handleCloseCommentModal();
+    
+    try {
+      const newComment = {
+        userId: user.uid,
+        displayName: user.displayName || user.username || user.email,
+        comment: commentText,
+        createdAt: new Date()
+      };
+      
+      await addDoc(collection(db, 'blog-posts', commentModal.postId, 'comments'), newComment);
+      
+      // Yeni yorumu listeye ekle
+      setCommentsList(prev => [...prev, { id: Date.now().toString(), ...newComment }]);
+      setCommentText('');
+    } catch (error) {
+      console.error('Yorum eklenirken hata:', error);
+    } finally {
+      setCommentLoading(false);
+    }
   };
 
   return (
@@ -207,43 +239,115 @@ console.log('useruseruser',user);
       <Dialog
         open={commentModal.open}
         onClose={handleCloseCommentModal}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle sx={{ color: '#5A0058', fontWeight: 600 }}>
-          Yorum Ekle
+          Yorumlar
         </DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Yorumunuz"
-            fullWidth
-            multiline
-            rows={4}
-            value={commentText}
-            onChange={e => setCommentText(e.target.value)}
-            variant="outlined"
-          />
+          {/* Yorumlar listesi */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, color: '#5A0058', fontWeight: 600 }}>
+              Mevcut Yorumlar ({commentsList.length})
+            </Typography>
+            
+            {commentsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                <CircularProgress size={24} sx={{ color: '#5A0058' }} />
+              </Box>
+            ) : commentsList.length === 0 ? (
+              <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic', textAlign: 'center', py: 2 }}>
+                Henüz yorum yok. İlk yorumu siz yapın!
+              </Typography>
+            ) : (
+              <Box sx={{ maxHeight: 300, overflowY: 'auto', mb: 3 }}>
+                {commentsList.map((comment) => (
+                  <Box key={comment.id} sx={{ 
+                    mb: 2, 
+                    p: 2, 
+                    borderRadius: 1, 
+                    bgcolor: 'rgba(90, 0, 88, 0.05)',
+                    border: '1px solid rgba(90, 0, 88, 0.1)'
+                  }}>
+                    <Typography variant="subtitle2" sx={{ color: '#5A0058', fontWeight: 600 }}>
+                      {comment.displayName || 'Kullanıcı'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#333', mt: 0.5 }}>
+                      {comment.comment}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#5A0058', opacity: 0.7 }}>
+                      {comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleString('tr-TR') : ''}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
+          
+          {/* Yorum ekleme formu */}
+          {user ? (
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2, color: '#5A0058', fontWeight: 600 }}>
+                Yorum Ekle
+              </Typography>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Yorumunuz"
+                fullWidth
+                multiline
+                rows={4}
+                value={commentText}
+                onChange={e => setCommentText(e.target.value)}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: '#5A0058',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#5A0058',
+                    },
+                  },
+                }}
+              />
+            </Box>
+          ) : (
+            <Typography variant="body2" sx={{ color: '#5A0058', fontStyle: 'italic', textAlign: 'center', py: 2 }}>
+              Yorum yapmak için giriş yapmalısınız.
+            </Typography>
+          )}
         </DialogContent>
         <DialogActions>
           <Button 
             onClick={handleCloseCommentModal}
-            sx={{ color: '#5A0058' }}
-          >
-            İptal
-          </Button>
-          <Button 
-            onClick={handleAddComment}
-            variant="contained"
-            disabled={commentLoading || !commentText.trim()}
+            variant="outlined"
             sx={{ 
-              bgcolor: '#5A0058',
-              '&:hover': { bgcolor: '#4A0048' }
+              borderColor: '#5A0058',
+              color: '#5A0058',
+              '&:hover': {
+                bgcolor: '#5A0058',
+                color: 'white',
+                borderColor: '#5A0058'
+              }
             }}
           >
-            {commentLoading ? <CircularProgress size={20} /> : 'Yorum Ekle'}
+            Kapat
           </Button>
+          {user && (
+            <Button 
+              onClick={handleAddComment}
+              variant="contained"
+              disabled={commentLoading || !commentText.trim()}
+              sx={{ 
+                bgcolor: '#5A0058',
+                '&:hover': { bgcolor: '#4A0048' }
+              }}
+            >
+              {commentLoading ? <CircularProgress size={20} /> : 'Yorum Ekle'}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Box>

@@ -182,7 +182,7 @@ function UserProfilePage() {
         {/* Profil Fotoğrafı */}
         <Avatar 
           src={profile.photoURL} 
-          sx={{ width: 120, height: 120, border: '3px solid #4E342E', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', mb: 2 }} 
+          sx={{ width: 120, height: 120, border: '3px solid #5A0058', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', mb: 2 }} 
         />
         
         {/* Kullanıcı Adı */}

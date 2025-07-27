@@ -512,7 +512,7 @@ function BlogEditPage() {
             }}
           >
             {formData.content.split('\n').map((line, index) => (
-              <Typography key={index} paragraph>
+              <Typography key={index} variant="body1" sx={{ mb: 1 }}>
                 {line}
               </Typography>
             ))}
