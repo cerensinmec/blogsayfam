@@ -12,8 +12,8 @@ const useReadingTime = (contentRef, postId) => {
   const startTimeRef = useRef(null);
   const lastActivityRef = useRef(null);
   const readingTimerRef = useRef(null);
-  const inactivityTimerRef = useRef(null);
   const sessionStartTimeRef = useRef(null);
+  const isReadingRef = useRef(false); // isReading durumunu ref ile takip et
 
   // Toplam okuma süresini Realtime Database'den getir
   const fetchTotalReadingTime = async () => {
@@ -94,26 +94,16 @@ const useReadingTime = (contentRef, postId) => {
     console.log('🎯 Okuma aktivitesi tespit edildi');
     console.log('📊 Mevcut isReading:', isReading);
     
-    if (!isReading) {
+    if (!isReadingRef.current) {
       console.log('✅ isReading false\'dan true\'ya değiştiriliyor');
       setIsReading(true);
+      isReadingRef.current = true;
       startTimeRef.current = now;
       sessionStartTimeRef.current = now;
       console.log('✅ sessionStartTimeRef ayarlandı:', now);
     }
     
-    // İnaktivite timer'ını sıfırla
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    
-    // 3 saniye inaktivite sonrası okumayı durdur
-    inactivityTimerRef.current = setTimeout(() => {
-      if (isReading) {
-        console.log('⏸️ 3 saniye inaktivite, okuma durduruluyor');
-        setIsReading(false);
-      }
-    }, 3000);
+    // Kullanıcı sayfada kaldığı sürece okuma devam eder
   };
 
   // Scroll pozisyonunu takip et
@@ -144,9 +134,10 @@ const useReadingTime = (contentRef, postId) => {
 
   // Sayfa kapatıldığında süreyi kaydet
   const handleBeforeUnload = () => {
-    if (isReading && sessionStartTimeRef.current) {
+    if (isReadingRef.current && sessionStartTimeRef.current) {
       const sessionDuration = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       if (sessionDuration > 5) {
+        console.log('🚪 Sayfa kapatılıyor, okuma süresi kaydediliyor:', sessionDuration, 'saniye');
         saveReadingTime(sessionDuration);
       }
     }
@@ -164,10 +155,10 @@ const useReadingTime = (contentRef, postId) => {
         // Her saniye dakika kontrolü yap
         const saveReadingTimeEveryMinute = async () => {
           console.log('🔍 Dakika kontrolü yapılıyor...');
-          console.log('📊 isReading:', isReading);
+          console.log('📊 isReadingRef.current:', isReadingRef.current);
           console.log('📊 sessionStartTimeRef.current:', sessionStartTimeRef.current);
           
-          if (isReading && sessionStartTimeRef.current) {
+          if (isReadingRef.current && sessionStartTimeRef.current) {
             const sessionDuration = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
             console.log('📊 Session duration:', sessionDuration, 'saniye');
             
@@ -195,9 +186,6 @@ const useReadingTime = (contentRef, postId) => {
     return () => {
       if (readingTimerRef.current) {
         clearInterval(readingTimerRef.current);
-      }
-      if (inactivityTimerRef.current) {
-        clearTimeout(inactivityTimerRef.current);
       }
     };
   }, [isReading]);
@@ -238,9 +226,20 @@ const useReadingTime = (contentRef, postId) => {
 
   // Sayfa değiştiğinde sıfırla ve toplam süreyi getir
   useEffect(() => {
+    // Önceki sayfadaki okuma süresini kaydet
+    if (isReadingRef.current && sessionStartTimeRef.current) {
+      const sessionDuration = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+      if (sessionDuration > 5) {
+        console.log('📄 Sayfa değişiyor, okuma süresi kaydediliyor:', sessionDuration, 'saniye');
+        saveReadingTime(sessionDuration);
+      }
+    }
+    
+    // Yeni sayfa için sıfırla
     setReadingTime(0);
     setProgress(0);
     setIsReading(false);
+    isReadingRef.current = false;
     startTimeRef.current = null;
     lastActivityRef.current = null;
     sessionStartTimeRef.current = null;
