@@ -38,8 +38,38 @@ function BlogEditPage() {
     content: '',
     category: 'genel'
   });
-  const { postId } = useParams();
+  const { id: postId } = useParams();
   const navigate = useNavigate();
+
+  const fetchPost = async () => {
+    try {
+      setLoading(true);
+      console.log('BlogEditPage - fetchPost called with ID:', postId);
+      const postRef = doc(db, 'blog-posts', postId);
+      console.log('BlogEditPage - Post reference created:', postRef);
+      const postSnap = await getDoc(postRef);
+
+      if (postSnap.exists()) {
+        const postData = { id: postSnap.id, ...postSnap.data() };
+        console.log('BlogEditPage - Post found:', postData);
+        setPost(postData);
+        setFormData({
+          title: postData.title,
+          content: postData.content,
+          category: postData.category || 'genel'
+        });
+        setIsNewPost(false);
+      } else {
+        console.log('BlogEditPage - Post not found for ID:', postId);
+        setError('Blog yazısı bulunamadı.');
+      }
+    } catch (error) {
+      console.error('Blog yazısı yüklenirken hata:', error);
+      setError('Blog yazısı yüklenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -53,40 +83,17 @@ function BlogEditPage() {
   }, [navigate]);
 
   useEffect(() => {
-    if (postId) {
+    console.log('BlogEditPage - useEffect triggered, postId:', postId, 'type:', typeof postId);
+    if (postId && postId !== 'undefined' && postId !== 'null') {
+      console.log('BlogEditPage - Fetching post with ID:', postId);
       fetchPost();
     } else {
+      console.log('BlogEditPage - No postId, setting new post mode');
       // Yeni blog yazısı oluşturma modu
       setIsNewPost(true);
       setLoading(false);
     }
   }, [postId]);
-
-  const fetchPost = async () => {
-    try {
-      setLoading(true);
-      const postRef = doc(db, 'blog-posts', postId);
-      const postSnap = await getDoc(postRef);
-
-      if (postSnap.exists()) {
-        const postData = { id: postSnap.id, ...postSnap.data() };
-        setPost(postData);
-        setFormData({
-          title: postData.title,
-          content: postData.content,
-          category: postData.category || 'genel'
-        });
-        setIsNewPost(false);
-      } else {
-        setError('Blog yazısı bulunamadı.');
-      }
-    } catch (error) {
-      console.error('Blog yazısı yüklenirken hata:', error);
-      setError('Blog yazısı yüklenirken bir hata oluştu.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +109,7 @@ function BlogEditPage() {
     }
 
     // Düzenleme modunda yetki kontrolü
-    if (!isNewPost && user.uid !== post?.authorId && user.email !== 'admin@example.com') {
+    if (!isNewPost && user.uid !== post?.authorId) {
       setError('Bu blog yazısını düzenleme yetkiniz yok.');
       return;
     }
@@ -174,6 +181,15 @@ function BlogEditPage() {
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/blog')}
+          sx={{
+            borderColor: '#5A0058',
+            color: '#5A0058',
+            '&:hover': {
+              bgcolor: '#5A0058',
+              color: 'white',
+              borderColor: '#5A0058'
+            }
+          }}
         >
           Blog'a Dön
         </Button>
@@ -181,7 +197,7 @@ function BlogEditPage() {
     );
   }
 
-  if (!isNewPost && (!user || (user.uid !== post?.authorId && user.email !== 'admin@example.com'))) {
+      if (!isNewPost && (!user || user.uid !== post?.authorId)) {
     return (
       <Container sx={{ py: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -202,26 +218,65 @@ function BlogEditPage() {
     <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, pb: { xs: 6, md: 8 }, px: { xs: 1, md: 2 }, width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 120px)' }}>
       {/* Breadcrumbs */}
       <Breadcrumbs sx={{ mb: 3 }}>
-        <Link component={RouterLink} to="/" color="inherit" underline="hover">
+        <Link 
+          component={RouterLink} 
+          to="/" 
+          sx={{ 
+            color: '#5A0058', 
+            textDecoration: 'none',
+            '&:hover': {
+              color: '#4A0047',
+              textDecoration: 'underline'
+            }
+          }}
+        >
           Anasayfa
         </Link>
-        <Link component={RouterLink} to="/blog" color="inherit" underline="hover">
+        <Link 
+          component={RouterLink} 
+          to="/blog" 
+          sx={{ 
+            color: '#5A0058', 
+            textDecoration: 'none',
+            '&:hover': {
+              color: '#4A0047',
+              textDecoration: 'underline'
+            }
+          }}
+        >
           Blog
         </Link>
         {isNewPost ? (
-          <Typography color="text.primary">Yeni Blog Yazısı</Typography>
+          <Typography sx={{ color: '#5A0058', fontWeight: 600 }}>Yeni Blog Yazısı</Typography>
         ) : (
           <>
-            <Link component={RouterLink} to={`/blog/${postId}`} color="inherit" underline="hover">
-              {post?.title}
+            <Link 
+              component={RouterLink} 
+              to={`/blog/${postId}`} 
+              sx={{ 
+                color: '#5A0058', 
+                textDecoration: 'none',
+                '&:hover': {
+                  color: '#4A0047',
+                  textDecoration: 'underline'
+                }
+              }}
+            >
+              {post?.title || 'Blog Yazısı'}
             </Link>
-            <Typography color="text.primary">Düzenle</Typography>
+            <Typography sx={{ color: '#5A0058', fontWeight: 600 }}>Düzenle</Typography>
           </>
         )}
       </Breadcrumbs>
 
-      <Paper sx={{ p: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+      <Paper sx={{ 
+        p: 4, 
+        bgcolor: 'white',
+        border: '3px solid #5A0058',
+        borderRadius: 2,
+        boxShadow: '0 4px 8px rgba(90, 0, 88, 0.1)'
+      }}>
+        <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#5A0058', fontWeight: 700 }}>
           {isNewPost ? 'Yeni Blog Yazısı Oluştur' : 'Blog Yazısını Düzenle'}
         </Typography>
 
@@ -240,12 +295,60 @@ function BlogEditPage() {
             variant="outlined"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              '& .MuiOutlinedInput-root': {
+                bgcolor: 'white',
+                '& fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&:hover fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: '#5A0058',
+                fontWeight: 600
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#5A0058'
+              }
+            }}
             required
             placeholder="Blog yazınızın başlığını girin..."
           />
           
-          <FormControl fullWidth sx={{ mb: 3 }}>
+          <FormControl fullWidth sx={{ 
+            mb: 3,
+            '& .MuiOutlinedInput-root': {
+              bgcolor: 'white',
+              '& fieldset': {
+                borderColor: '#87CEEB',
+                borderWidth: '2px'
+              },
+              '&:hover fieldset': {
+                borderColor: '#87CEEB',
+                borderWidth: '2px'
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#87CEEB',
+                borderWidth: '2px'
+              }
+            },
+            '& .MuiInputLabel-root': {
+              color: '#5A0058',
+              fontWeight: 600
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#5A0058'
+            }
+          }}>
             <InputLabel>Kategori</InputLabel>
             <Select
               value={formData.category}
@@ -272,7 +375,31 @@ function BlogEditPage() {
             variant="outlined"
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              '& .MuiOutlinedInput-root': {
+                bgcolor: 'white',
+                '& fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&:hover fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: '#5A0058',
+                fontWeight: 600
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#5A0058'
+              }
+            }}
             required
             placeholder="Blog yazınızın içeriğini buraya yazın..."
           />
@@ -283,6 +410,15 @@ function BlogEditPage() {
               variant="outlined"
               startIcon={<ArrowBackIcon />}
               onClick={() => navigate('/blog')}
+              sx={{
+                borderColor: '#5A0058',
+                color: '#5A0058',
+                '&:hover': {
+                  bgcolor: '#5A0058',
+                  color: 'white',
+                  borderColor: '#5A0058'
+                }
+              }}
             >
               İptal
             </Button>
@@ -290,6 +426,15 @@ function BlogEditPage() {
               variant="outlined"
               startIcon={<PreviewIcon />}
               onClick={handlePreview}
+              sx={{
+                borderColor: '#5A0058',
+                color: '#5A0058',
+                '&:hover': {
+                  bgcolor: '#5A0058',
+                  color: 'white',
+                  borderColor: '#5A0058'
+                }
+              }}
             >
               Önizleme
             </Button>
@@ -298,6 +443,15 @@ function BlogEditPage() {
               variant="contained"
               startIcon={isNewPost ? <AddIcon /> : <SaveIcon />}
               disabled={saving}
+              sx={{
+                bgcolor: '#5A0058',
+                '&:hover': {
+                  bgcolor: '#4A0047'
+                },
+                '&:disabled': {
+                  bgcolor: '#ccc'
+                }
+              }}
             >
               {saving ? 'Kaydediliyor...' : (isNewPost ? 'Yayınla' : 'Kaydet')}
             </Button>
@@ -358,7 +512,7 @@ function BlogEditPage() {
             }}
           >
             {formData.content.split('\n').map((line, index) => (
-              <Typography key={index} paragraph>
+              <Typography key={index} variant="body1" sx={{ mb: 1 }}>
                 {line}
               </Typography>
             ))}

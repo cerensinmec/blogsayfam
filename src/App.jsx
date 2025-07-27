@@ -12,7 +12,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import School from './pages/School';
 import BirthPlace from './pages/BirthPlacePage';
 import ContactPage from './pages/ContactPage';
-import AdminPage from './pages/AdminPage';
+
 import BlogDetailPage from './pages/BlogDetailPage';
 import BlogEditPage from './pages/BlogEditPage';
 import AdanaMediaPage from './pages/AdanaMediaPage';
@@ -31,8 +31,7 @@ import HomePage from './pages/HomePage';
 
 import './App.css';
 
-const deepForest = '#182D09';
-const eggshell = '#FCFFF5';
+
 
 const AppContent = () => {
   const location = useLocation();
@@ -46,7 +45,7 @@ const AppContent = () => {
       },
     },
     body: {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: 'white',
       margin: 0,
       fontFamily: theme.typography.fontFamily,
     }
@@ -55,16 +54,6 @@ const AppContent = () => {
   const isFeed = location.pathname === '/feed';
   const isMessages = location.pathname === '/messages';
   const isHome = location.pathname === '/' || location.pathname === '/home';
-
-  const footerStyle = {
-    background: isFeed ? deepForest : theme.palette.primary.main,
-    color: isFeed ? eggshell : theme.palette.background.default,
-    minHeight: 60,
-    textAlign: 'center',
-    padding: 16,
-    marginTop: 'auto',
-    boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
-  };
 
 
 
@@ -79,11 +68,8 @@ const AppContent = () => {
             <Route path="/home" element={<HomePage />} />
           </Routes>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header
-              headerColor={isFeed ? deepForest : undefined}
-              headerTextColor={isFeed ? eggshell : undefined}
-            />
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'white' }}>
+            <Header />
             <div style={{ flex: 1 }}>
               <Routes>
                 <Route path="/feed" element={<FeedPage />} />
@@ -94,7 +80,7 @@ const AppContent = () => {
                 <Route path="/school" element={<School />} />
                 <Route path="/birthplace" element={<BirthPlace />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/admin" element={<AdminPage />} />
+        
                 <Route path="/adanamedia" element={<AdanaMediaPage />} />
                 <Route path="/profile/edit" element={<ProfileEditPage />} />
                 <Route path="/user/:userId" element={<UserProfilePage />} />
@@ -108,11 +94,6 @@ const AppContent = () => {
                 <Route path="/messages" element={<MessagesPage />} />
               </Routes>
             </div>
-            {!isFeed && !isMessages && (
-              <footer style={footerStyle}>
-                <span>© {new Date().getFullYear()} Bloggi. Tüm hakları saklıdır.</span>
-              </footer>
-            )}
           </div>
         )}
       </ErrorBoundary>

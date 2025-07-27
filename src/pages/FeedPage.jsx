@@ -11,17 +11,21 @@ import {
   Avatar, 
   Button,
   Grid,
-  Chip
+  Chip,
+  Alert,
+  Paper
 } from '@mui/material';
 import { Search as SearchIcon, Person as PersonIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase/config';
+import { auth, db } from '../firebase/config';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import BlogPosts from '../components/BlogPosts';
 
 const FeedPage = () => {
+  const [user, authLoading] = useAuthState(auth);
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState({ users: [], posts: [] });
@@ -31,7 +35,7 @@ const FeedPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setPostsLoading(true);
       setError('');
       try {
         const postsRef = collection(db, 'blog-posts');
@@ -48,7 +52,7 @@ const FeedPage = () => {
         console.error('FeedPage - Veri yükleme hatası:', e);
         setError('Veriler yüklenirken hata oluştu.');
       } finally {
-        setLoading(false);
+        setPostsLoading(false);
       }
     };
     fetchData();
@@ -145,6 +149,51 @@ const FeedPage = () => {
     }
   };
 
+  // Giriş yapmayan kullanıcılar için uyarı
+  if (!authLoading && !user) {
+    return (
+      <Box sx={{
+        backgroundColor: 'white',
+        minHeight: '100vh',
+        width: '100%',
+        py: 4,
+        px: { xs: 2, md: 4 },
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Container maxWidth="md">
+          <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 2 }}>
+            <Alert severity="warning" sx={{ mb: 3, fontSize: '1.1rem' }}>
+              Bu sayfayı görüntülemek için giriş yapmanız gerekmektedir.
+            </Alert>
+            <Typography variant="h5" sx={{ mb: 2, color: '#5A0058', fontWeight: 700 }}>
+              Akış Sayfasına Erişim
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: '#666' }}>
+              Blog yazılarını görüntülemek, arama yapmak ve diğer kullanıcılarla etkileşimde bulunmak için lütfen hesabınıza giriş yapın.
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate('/')}
+              sx={{
+                bgcolor: '#5A0058',
+                '&:hover': { bgcolor: '#4A0047' },
+                px: 4,
+                py: 1.5,
+                fontSize: '1.1rem',
+                fontWeight: 600
+              }}
+            >
+              Anasayfaya Dön
+            </Button>
+          </Paper>
+        </Container>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{
       backgroundColor: 'white',
@@ -181,7 +230,7 @@ const FeedPage = () => {
                   </InputAdornment>
                 )
               }}
-                            sx={{
+              sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '& fieldset': {
@@ -231,7 +280,7 @@ const FeedPage = () => {
                         <PersonIcon sx={{ fontSize: 16 }} />
                         {searchResults.users.length} kullanıcı bulundu
                       </Typography>
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {searchResults.users.map((user) => (
                           <Box 
                             key={user.id}
@@ -385,7 +434,7 @@ const FeedPage = () => {
         </Box>
 
         {/* Blog Yazıları */}
-        <BlogPosts posts={posts} loading={loading} error={error} navigate={navigate} formatDate={formatDate} titleColor="#2c3e50" />
+        <BlogPosts posts={posts} loading={postsLoading} error={error} navigate={navigate} formatDate={formatDate} titleColor="#2c3e50" />
       </Container>
     </Box>
   );

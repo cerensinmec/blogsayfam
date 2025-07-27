@@ -23,7 +23,8 @@ import {
   updateDoc,
   doc,
   getDocs,
-  serverTimestamp
+  serverTimestamp,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { ref, push, set, onValue, off, get, child, update } from 'firebase/database';
@@ -67,6 +68,13 @@ const ChatWindow = ({
         const conversationMessages = allMessages.filter(
           msg => msg.conversationId === selectedConversation.id
         );
+        
+        // Eğer kullanıcı bu konuşmayı silmişse mesajları gösterme
+        if (selectedConversation.hiddenFor?.[currentUser.uid]) {
+          setMessages([]);
+          setLoading(false);
+          return;
+        }
         
         console.log('Filtrelenmiş mesajlar:', conversationMessages);
         
@@ -156,6 +164,7 @@ const ChatWindow = ({
           return conversation.participants && 
                  conversation.participants.includes(currentUser.uid) && 
                  conversation.participants.includes(targetUser.id);
+          // hiddenFor kontrolünü kaldırdık çünkü karşı tarafın konuşmayı silip silmediğine bakmamız gerekiyor
         });
       }
 
@@ -185,7 +194,8 @@ const ChatWindow = ({
         unreadCount: {
           [currentUser.uid]: 0,
           [targetUser.id]: 0
-        }
+        },
+        hiddenFor: {} // Kullanıcıların konuşmayı silip silmediğini kontrol eden alan
       };
 
       console.log('Konuşma verisi:', conversationData);
@@ -220,6 +230,23 @@ const ChatWindow = ({
       if (!conversation) return;
     }
 
+    // Eğer konuşma varsa ama kullanıcı silmişse, tekrar aktif hale getir
+    if (conversation && conversation.hiddenFor?.[currentUser.uid]) {
+      try {
+        const conversationRef = ref(database, `conversations/${conversation.id}`);
+        await update(conversationRef, {
+          [`hiddenFor/${currentUser.uid}`]: false
+        });
+        // Konuşmayı güncelle
+        conversation.hiddenFor = {
+          ...conversation.hiddenFor,
+          [currentUser.uid]: false
+        };
+      } catch (error) {
+        console.error('Konuşma aktif hale getirme hatası:', error);
+      }
+    }
+
     if (!conversation) return;
 
     setSending(true);
@@ -248,12 +275,24 @@ const ChatWindow = ({
 
       // Konuşmayı güncelle (Realtime Database'de)
       const conversationRef = ref(database, `conversations/${conversation.id}`);
-      await update(conversationRef, {
+      const updateData = {
         lastMessage: newMessage.trim(),
         lastMessageTime: Date.now(),
         lastSenderId: currentUser.uid,
         [`unreadCount/${otherUserId}`]: (conversation.unreadCount?.[otherUserId] || 0) + 1
-      });
+      };
+      
+      // Eğer karşı taraf konuşmayı silmişse, tekrar görünür yap
+      if (conversation.hiddenFor?.[otherUserId]) {
+        updateData[`hiddenFor/${otherUserId}`] = false;
+      }
+      
+      // Eğer kendim konuşmayı silmişsem, tekrar aktif hale getir
+      if (conversation.hiddenFor?.[currentUser.uid]) {
+        updateData[`hiddenFor/${currentUser.uid}`] = false;
+      }
+      
+      await update(conversationRef, updateData);
 
       setNewMessage('');
     } catch (error) {
@@ -289,13 +328,47 @@ const ChatWindow = ({
     });
   };
 
+  const [otherUserName, setOtherUserName] = useState('Kullanıcı');
+
+  // Diğer kullanıcının ismini Firestore'dan al
+  useEffect(() => {
+    const loadOtherUserName = async () => {
+      if (!selectedConversation && !selectedUser) return;
+      
+      let otherUserId;
+      if (selectedUser) {
+        otherUserId = selectedUser.id;
+      } else if (selectedConversation) {
+        otherUserId = selectedConversation.participants.find(id => id !== currentUser.uid);
+      }
+      
+      if (!otherUserId) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', otherUserId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const name = userData.displayName || 
+                      userData.firstName || 
+                      userData.username || 
+                      userData.email?.split('@')[0] || 
+                      'Kullanıcı';
+          setOtherUserName(name);
+        }
+      } catch (error) {
+        console.error('Kullanıcı bilgisi yükleme hatası:', error);
+        setOtherUserName('Kullanıcı');
+      }
+    };
+    
+    loadOtherUserName();
+  }, [selectedConversation, selectedUser, currentUser.uid]);
+
   const getOtherUser = () => {
     if (selectedUser) return selectedUser;
     if (!selectedConversation) return null;
     
     const otherUserId = selectedConversation.participants.find(id => id !== currentUser.uid);
-    const otherUserIndex = selectedConversation.participants.indexOf(otherUserId);
-    const otherUserName = selectedConversation.participantNames?.[otherUserIndex] || 'Kullanıcı';
     
     return {
       id: otherUserId,

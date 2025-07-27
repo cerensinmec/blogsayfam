@@ -22,7 +22,7 @@ import { Search as SearchIcon, Person as PersonIcon, Close as CloseIcon } from '
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import ConversationList from '../components/ConversationList';
 import ChatWindow from '../components/ChatWindow';
 
@@ -36,6 +36,7 @@ const MessagesPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedUserName, setSelectedUserName] = useState('Kullanıcı');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -48,6 +49,43 @@ const MessagesPage = () => {
       displayName: user?.displayName
     });
   }, [user]);
+
+  // Seçili kullanıcının ismini yükle
+  useEffect(() => {
+    const loadSelectedUserName = async () => {
+      if (!selectedUser && !selectedConversation) {
+        setSelectedUserName('Kullanıcı');
+        return;
+      }
+      
+      let userId;
+      if (selectedUser) {
+        userId = selectedUser.id;
+      } else if (selectedConversation) {
+        userId = selectedConversation.participants.find(id => id !== user?.uid);
+      }
+      
+      if (!userId) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const name = userData.displayName || 
+                      userData.firstName || 
+                      userData.username || 
+                      userData.email?.split('@')[0] || 
+                      'Kullanıcı';
+          setSelectedUserName(name);
+        }
+      } catch (error) {
+        console.error('Kullanıcı bilgisi yükleme hatası:', error);
+        setSelectedUserName('Kullanıcı');
+      }
+    };
+    
+    loadSelectedUserName();
+  }, [selectedUser, selectedConversation, user?.uid]);
 
   if (!user) {
     return (
@@ -321,7 +359,7 @@ const MessagesPage = () => {
               }}>
                 <Box display="flex" alignItems="center">
                   <Avatar sx={{ bgcolor: '#fff', color: '#5A0058', mr: 2 }}>
-                    {(selectedUser?.displayName || selectedUser?.firstName || selectedConversation?.participantNames?.[1] || 'K').charAt(0).toUpperCase()}
+                    {selectedUserName.charAt(0).toUpperCase()}
                   </Avatar>
                   <Typography 
                     variant="h6" 
@@ -342,7 +380,7 @@ const MessagesPage = () => {
                       }
                     }}
                   >
-                    {selectedUser?.displayName || selectedUser?.firstName || selectedConversation?.participantNames?.[1] || 'Kullanıcı'}
+                    {selectedUserName}
                   </Typography>
                 </Box>
                 <IconButton 

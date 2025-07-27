@@ -18,7 +18,9 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemText
+  ListItemText,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -33,20 +35,22 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import BusinessIcon from '@mui/icons-material/Business';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BlogPostCard from '../components/BlogPostCard';
+import { themeColors } from '../theme/theme';
 
 const HomePage = () => {
-  const [user] = useAuthState(auth);
+  const [user, authLoading] = useAuthState(auth);
   const navigate = useNavigate();
   const [featuredBlogs, setFeaturedBlogs] = useState([]);
   const [activeAuthors, setActiveAuthors] = useState([]);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(true);
   const [allPosts, setAllPosts] = useState([]);
   const [cityPosts, setCityPosts] = useState({});
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showAllFiltered, setShowAllFiltered] = useState(false);
+  const [loginAlertOpen, setLoginAlertOpen] = useState(false);
 
   useEffect(() => {
     fetchFeaturedContent();
@@ -96,7 +100,7 @@ const HomePage = () => {
     } catch (error) {
       console.error('İçerik yükleme hatası:', error);
     } finally {
-      setLoading(false);
+      setContentLoading(false);
     }
   };
 
@@ -123,6 +127,32 @@ const HomePage = () => {
 
   const handleAuthSuccess = () => {
     setAuthDialogOpen(false);
+    // Giriş başarılı olduğunda kullanıcı durumunu güncelle
+    // useAuthState hook'u otomatik olarak güncelleyecek
+  };
+
+  const handleCategoryClick = () => {
+    if (!user && !authLoading) {
+      setLoginAlertOpen(true);
+    } else if (user) {
+      navigate('/feed');
+    }
+  };
+
+  const handleBlogClick = (blogId) => {
+    if (!user && !authLoading) {
+      setLoginAlertOpen(true);
+    } else if (user) {
+      navigate(`/blog/${blogId}`);
+    }
+  };
+
+  const handleAuthorClick = (authorId) => {
+    if (!user && !authLoading) {
+      setLoginAlertOpen(true);
+    } else if (user) {
+      navigate(`/user/${authorId}`);
+    }
   };
 
   const formatDate = (date) => {
@@ -137,13 +167,13 @@ const HomePage = () => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      'Teknoloji': 'primary',
-      'Seyahat': 'secondary',
-      'Kişisel Gelişim': 'success',
-      'Girişimcilik': 'warning',
-      'Genel': 'default'
+      'Teknoloji': themeColors.category,
+      'Seyahat': themeColors.category,
+      'Kişisel Gelişim': themeColors.category,
+      'Girişimcilik': themeColors.category,
+      'Genel': themeColors.category
     };
-    return colors[category] || 'default';
+    return colors[category] || themeColors.category;
   };
 
   // Yazı türü filtreleme fonksiyonu
@@ -195,10 +225,10 @@ const HomePage = () => {
   };
 
   const categories = [
-    { name: 'Teknoloji', icon: <TrendingUpIcon />, color: '#FF6B6B', description: 'En son teknoloji trendleri' },
-    { name: 'Seyahat', icon: <FlightIcon />, color: '#4ECDC4', description: 'Dünya keşifleri' },
-    { name: 'Kişisel Gelişim', icon: <PsychologyIcon />, color: '#45B7D1', description: 'Kendini geliştir' },
-    { name: 'Girişimcilik', icon: <BusinessIcon />, color: '#96CEB4', description: 'İş dünyası' }
+    { name: 'Teknoloji', icon: <TrendingUpIcon />, color: '#6366F1', description: 'En son teknoloji trendleri' },
+    { name: 'Seyahat', icon: <FlightIcon />, color: '#10B981', description: 'Dünya keşifleri' },
+    { name: 'Kişisel Gelişim', icon: <PsychologyIcon />, color: '#F59E0B', description: 'Kendini geliştir' },
+    { name: 'Girişimcilik', icon: <BusinessIcon />, color: '#EF4444', description: 'İş dünyası' }
   ];
 
   return (
@@ -211,7 +241,7 @@ const HomePage = () => {
       {/* Hero Section */}
       <Box sx={{ 
         backgroundColor: 'white',
-        color: '#2c3e50',
+        color: '#5A0058',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -229,7 +259,7 @@ const HomePage = () => {
             size="small"
             onClick={() => setAuthDialogOpen(true)}
             sx={{
-              bgcolor: '#667eea',
+              bgcolor: '#8B5A8B',
               color: 'white',
               fontWeight: 600,
               borderRadius: 2,
@@ -237,7 +267,7 @@ const HomePage = () => {
               py: 1,
               fontSize: '0.9rem',
               '&:hover': {
-                bgcolor: '#5a6fd8',
+                bgcolor: '#7A4A7A',
                 transform: 'translateY(-1px)'
               }
             }}
@@ -249,7 +279,7 @@ const HomePage = () => {
             size="small"
             onClick={() => setAuthDialogOpen(true)}
             sx={{
-              bgcolor: '#667eea',
+              bgcolor: '#8B5A8B',
               color: 'white',
               fontWeight: 600,
               borderRadius: 2,
@@ -257,7 +287,7 @@ const HomePage = () => {
               py: 1,
               fontSize: '0.9rem',
               '&:hover': {
-                bgcolor: '#5a6fd8',
+                bgcolor: '#7A4A7A',
                 transform: 'translateY(-1px)'
               }
             }}
@@ -280,7 +310,7 @@ const HomePage = () => {
                         fontWeight: 900,
                         mb: 2,
                         lineHeight: 1.1,
-                        color: '#2c3e50'
+                        color: '#000'
                       }}
                     >
                       Bloggi
@@ -291,8 +321,8 @@ const HomePage = () => {
                       sx={{ 
                         mb: 3,
                         lineHeight: 1.5,
-                        color: '#34495e',
-                        fontWeight: 400,
+                        color: '#000',
+                        fontWeight: 500,
                         fontSize: { xs: '1rem', md: '1.1rem' }
                       }}
                     >
@@ -306,8 +336,8 @@ const HomePage = () => {
                         label="#Yazılım" 
                         size="medium" 
                         sx={{ 
-                          bgcolor: '#E8F4F8', 
-                          color: '#2c3e50', 
+                          bgcolor: '#6366F1', 
+                          color: 'white', 
                           fontWeight: 600,
                           fontSize: '0.8rem'
                         }} 
@@ -316,8 +346,8 @@ const HomePage = () => {
                         label="#Motivasyon" 
                         size="medium" 
                         sx={{ 
-                          bgcolor: '#E8F4F8', 
-                          color: '#2c3e50', 
+                          bgcolor: '#F59E0B', 
+                          color: 'white', 
                           fontWeight: 600,
                           fontSize: '0.8rem'
                         }} 
@@ -326,39 +356,15 @@ const HomePage = () => {
                         label="#Freelance" 
                         size="medium" 
                         sx={{ 
-                          bgcolor: '#E8F4F8', 
-                          color: '#2c3e50', 
+                          bgcolor: '#10B981', 
+                          color: 'white', 
                           fontWeight: 600,
                           fontSize: '0.8rem'
                         }} 
                       />
                     </Box>
 
-                    {!user && (
-                      <Button
-                        variant="contained"
-                        size="medium"
-                        onClick={() => setAuthDialogOpen(true)}
-                        sx={{
-                          bgcolor: '#667eea',
-                          color: 'white',
-                          px: 4,
-                          py: 1.5,
-                          fontSize: '1rem',
-                          fontWeight: 700,
-                          borderRadius: 2,
-                          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.3)',
-                          '&:hover': { 
-                            bgcolor: '#5a6fd8',
-                            transform: 'translateY(-3px)',
-                            boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)'
-                          },
-                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }}
-                      >
-                        Hemen Başla
-                      </Button>
-                    )}
+
                   </Box>
                 </Fade>
               </Grid>
@@ -372,7 +378,7 @@ const HomePage = () => {
                       sx={{ 
                         mb: 3, 
                         fontWeight: 800, 
-                        color: '#2c3e50',
+                        color: '#000',
                         textAlign: 'center'
                       }}
                     >
@@ -390,15 +396,15 @@ const HomePage = () => {
                                 cursor: 'pointer',
                                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                 background: 'white',
-                                border: `2px solid ${category.color}20`,
+                                border: `3px solid ${category.color}`,
                                 textAlign: 'center',
                                 '&:hover': { 
                                   transform: 'translateY(-6px)',
-                                  boxShadow: `0 6px 20px ${category.color}30`,
-                                  border: `2px solid ${category.color}40`
+                                  boxShadow: `0 6px 20px ${category.color}40`,
+                                  border: `3px solid ${category.color}`
                                 }
                               }}
-                              onClick={() => navigate('/feed')}
+                              onClick={handleCategoryClick}
                             >
                               <Box sx={{ 
                                 width: 45, 
@@ -416,7 +422,7 @@ const HomePage = () => {
                               }}>
                                 {category.icon}
                               </Box>
-                              <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2c3e50', mb: 0.5 }}>
+                              <Typography variant="subtitle1" fontWeight={700} sx={{ color: category.color, mb: 0.5 }}>
                                 {category.name}
                               </Typography>
                               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
@@ -446,7 +452,7 @@ const HomePage = () => {
                 sx={{ 
                   mb: 3, 
                   fontWeight: 800, 
-                  color: '#2c3e50',
+                  color: '#000',
                   textAlign: 'left',
                   position: 'relative',
                   '&::after': {
@@ -456,7 +462,7 @@ const HomePage = () => {
                     left: 0,
                     width: 50,
                     height: 3,
-                    bgcolor: '#667eea',
+                    bgcolor: themeColors.secondary,
                     borderRadius: 2
                   }
                 }}
@@ -472,11 +478,12 @@ const HomePage = () => {
                       sx={{ 
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                         background: 'white',
-                        border: '1px solid #e9ecef',
+                        border: '3px solid white',
+                        borderRadius: 2,
                         height: 200,
                         '&:hover': { 
                           transform: 'translateY(-4px) scale(1.01)',
-                          boxShadow: '0 12px 30px rgba(0,0,0,0.1)'
+                          boxShadow: '0 12px 30px rgba(90, 0, 88, 0.2)'
                         }
                       }}
                     >
@@ -486,8 +493,8 @@ const HomePage = () => {
                             label={blog.category || 'Genel'} 
                             size="small" 
                             sx={{ 
-                              bgcolor: '#e8f5e8', 
-                              color: '#2e7d32', 
+                              bgcolor: getCategoryColor(blog.category || 'Genel'), 
+                              color: 'white', 
                               fontWeight: 700,
                               fontSize: '0.65rem'
                             }}
@@ -497,7 +504,7 @@ const HomePage = () => {
                           </Typography>
                         </Box>
                         
-                        <Typography variant="h6" gutterBottom fontWeight={700} sx={{ color: '#2c3e50', mb: 1.5, lineHeight: 1.3, flex: 1, fontSize: '0.95rem' }}>
+                        <Typography variant="h6" gutterBottom fontWeight={700} sx={{ color: '#000', mb: 1.5, lineHeight: 1.3, flex: 1, fontSize: '0.95rem' }}>
                           {blog.title}
                         </Typography>
                         
@@ -515,16 +522,16 @@ const HomePage = () => {
                           <Button 
                             variant="contained"
                             size="small"
-                            onClick={() => navigate(`/blog/${blog.id}`)}
+                            onClick={() => handleBlogClick(blog.id)}
                             sx={{ 
-                              bgcolor: '#667eea',
+                              bgcolor: themeColors.secondary,
                               fontWeight: 700,
                               borderRadius: 1.5,
                               px: 1.5,
                               py: 0.3,
                               fontSize: '0.7rem',
                               '&:hover': { 
-                                bgcolor: '#5a6fd8',
+                                bgcolor: themeColors.primary,
                                 transform: 'translateY(-1px)'
                               }
                             }}
@@ -540,15 +547,15 @@ const HomePage = () => {
               </Box>
             </Grid>
 
-            {/* 2. Sütun - Orta Kısım (Anket ve Harita Alt Alta) */}
-            <Grid item xs={12} lg={4}>
+            {/* 2. Sütun - Orta Kısım (Anket ve Harita) */}
+            <Grid item xs={12} lg={4} sx={{ minWidth: 0, flexShrink: 0 }}>
               {/* Anket */}
               <Typography 
                 variant="h5" 
                 sx={{ 
                   mb: 3, 
                   fontWeight: 800, 
-                  color: '#2c3e50',
+                  color: '#000',
                   textAlign: 'left',
                   position: 'relative',
                   '&::after': {
@@ -558,7 +565,7 @@ const HomePage = () => {
                     left: 0,
                     width: 50,
                     height: 3,
-                    bgcolor: '#667eea',
+                    bgcolor: themeColors.secondary,
                     borderRadius: 2
                   }
                 }}
@@ -567,7 +574,7 @@ const HomePage = () => {
               </Typography>
               
               <Paper elevation={2} sx={{ p: 3.5, borderRadius: 2, bgcolor: 'white', width: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', mb: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5, color: '#8D6E63', fontSize: '1rem', textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5, color: '#000', fontSize: '1rem', textAlign: 'center' }}>
                   Bugün Ne Okumak İstersin?
                 </Typography>
                 
@@ -582,9 +589,11 @@ const HomePage = () => {
                       fontWeight: 500, 
                       fontSize: '0.8rem', 
                       py: 0.7,
-                      bgcolor: selectedCategory === 'kisa' ? '#667eea' : 'transparent',
+                      bgcolor: selectedCategory === 'kisa' ? themeColors.secondary : 'transparent',
+                      borderColor: themeColors.secondary,
+                      color: selectedCategory === 'kisa' ? 'white' : themeColors.secondary,
                       '&:hover': {
-                        bgcolor: selectedCategory === 'kisa' ? '#5a6fd8' : '#f8f9fa'
+                        bgcolor: selectedCategory === 'kisa' ? themeColors.primary : 'rgba(139, 90, 139, 0.05)'
                       }
                     }}
                   >
@@ -600,9 +609,11 @@ const HomePage = () => {
                       fontWeight: 500, 
                       fontSize: '0.8rem', 
                       py: 0.7,
-                      bgcolor: selectedCategory === 'uzun' ? '#667eea' : 'transparent',
+                      bgcolor: selectedCategory === 'uzun' ? themeColors.secondary : 'transparent',
+                      borderColor: themeColors.secondary,
+                      color: selectedCategory === 'uzun' ? 'white' : themeColors.secondary,
                       '&:hover': {
-                        bgcolor: selectedCategory === 'uzun' ? '#5a6fd8' : '#f8f9fa'
+                        bgcolor: selectedCategory === 'uzun' ? themeColors.primary : 'rgba(139, 90, 139, 0.05)'
                       }
                     }}
                   >
@@ -618,9 +629,11 @@ const HomePage = () => {
                       fontWeight: 500, 
                       fontSize: '0.8rem', 
                       py: 0.7,
-                      bgcolor: selectedCategory === 'yeni' ? '#667eea' : 'transparent',
+                      bgcolor: selectedCategory === 'yeni' ? themeColors.secondary : 'transparent',
+                      borderColor: themeColors.secondary,
+                      color: selectedCategory === 'yeni' ? 'white' : themeColors.secondary,
                       '&:hover': {
-                        bgcolor: selectedCategory === 'yeni' ? '#5a6fd8' : '#f8f9fa'
+                        bgcolor: selectedCategory === 'yeni' ? themeColors.primary : 'rgba(139, 90, 139, 0.05)'
                       }
                     }}
                   >
@@ -642,7 +655,7 @@ const HomePage = () => {
                         <List dense>
                           {(showAllFiltered ? filteredPosts : filteredPosts.slice(0, 2)).map(post => (
                             <ListItem key={post.id} disablePadding>
-                              <ListItemButton onClick={() => navigate(`/blog/${post.id}`)} sx={{ py: 0.5 }}>
+                              <ListItemButton onClick={() => handleBlogClick(post.id)} sx={{ py: 0.5 }}>
                                 <ListItemText primary={post.title} sx={{ fontSize: '0.8rem' }} />
                               </ListItemButton>
                             </ListItem>
@@ -655,7 +668,7 @@ const HomePage = () => {
                             onClick={() => setShowAllFiltered(!showAllFiltered)}
                             sx={{ 
                               mt: 1, 
-                              color: '#667eea',
+                              color: '#8B5A8B',
                               textTransform: 'none',
                               fontSize: '0.75rem'
                             }}
@@ -685,7 +698,7 @@ const HomePage = () => {
                     left: 0,
                     width: 50,
                     height: 3,
-                    bgcolor: '#667eea',
+                    bgcolor: themeColors.accent,
                     borderRadius: 2
                   }
                 }}
@@ -693,7 +706,7 @@ const HomePage = () => {
                 Yazıların Haritası
               </Typography>
               
-              <Paper elevation={2} sx={{ p: 3.5, borderRadius: 2, bgcolor: 'white', width: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+              <Paper elevation={2} sx={{ p: 3.5, borderRadius: 2, bgcolor: 'white', width: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', minWidth: 0, flexShrink: 0 }}>
                 <Box sx={{ 
                   position: 'relative', 
                   width: '100%', 
@@ -705,7 +718,10 @@ const HomePage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  mb: 2
+                  mb: 2,
+                  minWidth: 0, // Flexbox shrink sorununu çözer
+                  flexShrink: 0, // Genişliğin küçülmesini engeller
+                  maxWidth: '100%' // Maksimum genişliği sınırla
                 }}>
                   <TurkeyMap 
                     onCitySelect={(cityObj) => {
@@ -715,54 +731,92 @@ const HomePage = () => {
                     cityHasPostsMap={Object.fromEntries(Object.entries(cityPosts).map(([city, posts]) => [city, posts.length > 0]))}
                     style={{ width: '100%', height: '100%' }}
                   />
+                  
+                  {/* Seçilen şehir yazıları overlay */}
+                  {selectedCity && (
+                    <Box sx={{ 
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                      left: 10,
+                      bottom: 10,
+                      bgcolor: 'rgba(255, 255, 255, 0.98)',
+                      borderRadius: 1,
+                      border: '1px solid #e9ecef',
+                      p: 2,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      zIndex: 10,
+                      overflow: 'auto',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                        <Typography variant="subtitle2" sx={{ color: '#6D4C41', fontSize: '0.85rem', fontWeight: 600 }}>
+                          {selectedCity} ({cityPosts[selectedCity]?.length || 0} yazı)
+                        </Typography>
+                        <Button 
+                          size="small" 
+                          onClick={() => setSelectedCity(null)}
+                          sx={{ 
+                            minWidth: 'auto', 
+                            p: 0.5, 
+                            color: '#666',
+                            '&:hover': { bgcolor: 'rgba(0,0,0,0.1)' }
+                          }}
+                        >
+                          ✕
+                        </Button>
+                      </Box>
+                      
+                      {cityPosts[selectedCity]?.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem', textAlign: 'center', mt: 2 }}>
+                          Bu şehirle ilgili yazı bulunamadı.
+                        </Typography>
+                      ) : (
+                        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                          {cityPosts[selectedCity]?.map(post => (
+                            <Box 
+                              key={post.id} 
+                              sx={{ 
+                                p: 1, 
+                                mb: 1, 
+                                bgcolor: 'white', 
+                                borderRadius: 0.5,
+                                cursor: 'pointer',
+                                border: '1px solid #e0e0e0',
+                                transition: 'all 0.3s ease',
+                                                              '&:hover': { 
+                                bgcolor: themeColors.accent, 
+                                color: 'white',
+                                transform: 'translateX(2px)',
+                                boxShadow: '0 2px 6px rgba(102, 126, 234, 0.3)'
+                              }
+                              }}
+                              onClick={() => handleBlogClick(post.id)}
+                            >
+                              <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.75rem', mb: 0.5, lineHeight: 1.2 }}>
+                                {post.title}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                {post.createdAt?.toDate?.() ? post.createdAt.toDate().toLocaleString('tr-TR') : ''}
+                                {post.likeCount > 0 && ` • ❤️ ${post.likeCount}`}
+                                {post.commentCount > 0 && ` • 💬 ${post.commentCount}`}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+                    </Box>
+                  )}
                 </Box>
                 
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2, fontSize: '0.75rem' }}>
                   🔴 Noktalar: Blog yazısı olan şehirler
                 </Typography>
-                
-                {selectedCity && (
-                  <Box sx={{ mt: 2, p: 1.5, bgcolor: '#f8f9fa', borderRadius: 1, border: '1px solid #e9ecef' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1, color: '#6D4C41', fontSize: '0.85rem' }}>
-                      {selectedCity} ile ilgili yazılar ({cityPosts[selectedCity]?.length || 0})
-                    </Typography>
-                    {cityPosts[selectedCity]?.length === 0 ? (
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                        Bu şehirle ilgili yazı bulunamadı.
-                      </Typography>
-                    ) : (
-                      <Box sx={{ maxHeight: 80, overflowY: 'auto' }}>
-                        {cityPosts[selectedCity]?.map(post => (
-                          <Box 
-                            key={post.id} 
-                            sx={{ 
-                              p: 0.8, 
-                              mb: 0.3, 
-                              bgcolor: 'white', 
-                              borderRadius: 1,
-                              cursor: 'pointer',
-                              border: '1px solid #e0e0e0',
-                              transition: 'all 0.3s ease',
-                              '&:hover': { 
-                                bgcolor: '#667eea', 
-                                color: 'white',
-                                transform: 'translateX(4px)',
-                                boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
-                              }
-                            }}
-                            onClick={() => navigate(`/blog/${post.id}`)}
-                          >
-                            <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.75rem' }}>
-                              {post.title}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    )}
-                  </Box>
-                )}
               </Paper>
             </Grid>
+
+
 
             {/* 3. Sütun - Aktif Yazarlar */}
             <Grid item xs={12} lg={4}>
@@ -771,7 +825,7 @@ const HomePage = () => {
                 sx={{ 
                   mb: 3, 
                   fontWeight: 800, 
-                  color: '#2c3e50',
+                  color: '#000',
                   textAlign: 'left',
                   position: 'relative',
                   '&::after': {
@@ -781,7 +835,7 @@ const HomePage = () => {
                     left: 0,
                     width: 50,
                     height: 3,
-                    bgcolor: '#667eea',
+                    bgcolor: themeColors.secondary,
                     borderRadius: 2
                   }
                 }}
@@ -797,16 +851,17 @@ const HomePage = () => {
                       sx={{ 
                         transition: 'background 0.2s',
                         background: 'white',
-                        border: '1px solid #e9ecef',
+                        border: '3px solid white',
+                        borderRadius: 2,
                         cursor: 'pointer',
                         height: 200,
                         '&:hover': { 
-                          background: '#f8f9fa',
+                          background: 'rgba(90, 0, 88, 0.02)',
                           transform: 'translateY(-2px)',
-                          boxShadow: '0 8px 20px rgba(0,0,0,0.1)'
+                          boxShadow: '0 8px 20px rgba(90, 0, 88, 0.15)'
                         }
                       }}
-                      onClick={() => navigate(`/user/${author.id}`)}
+                      onClick={() => handleAuthorClick(author.id)}
                     >
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3.5, height: '100%', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -816,15 +871,16 @@ const HomePage = () => {
                               width: 60, 
                               height: 60, 
                               mb: 1.5,
-                              bgcolor: '#667eea',
+                              bgcolor: themeColors.secondary,
                               fontSize: '1.5rem',
-                              fontWeight: 700
+                              fontWeight: 700,
+                              border: `2px solid ${themeColors.secondary}`
                             }}
                           >
                             {author.displayName ? author.displayName.charAt(0).toUpperCase() : 'U'}
                           </Avatar>
                           
-                          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, color: '#2c3e50', fontSize: '0.9rem' }}>
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, color: '#000', fontSize: '0.9rem' }}>
                             {author.displayName || author.username || ((author.firstName || '') + ' ' + (author.lastName || '')).trim() || author.email || 'Kullanıcı'}
                           </Typography>
                           
@@ -838,8 +894,8 @@ const HomePage = () => {
                             label="Blog Yazarı" 
                             size="small" 
                             sx={{ 
-                              bgcolor: '#e8f5e8', 
-                              color: '#2e7d32', 
+                              bgcolor: '#8B5A8B', 
+                              color: 'white', 
                               fontWeight: 600,
                               fontSize: '0.65rem'
                             }}
@@ -848,8 +904,8 @@ const HomePage = () => {
                             label="Aktif" 
                             size="small" 
                             sx={{ 
-                              bgcolor: '#fff3e0', 
-                              color: '#f57c00', 
+                              bgcolor: '#10B981', 
+                              color: 'white', 
                               fontWeight: 600,
                               fontSize: '0.65rem'
                             }}
@@ -873,6 +929,30 @@ const HomePage = () => {
         onClose={() => setAuthDialogOpen(false)} 
         onAuthSuccess={handleAuthSuccess}
       />
+      
+      {/* Giriş Yapma Uyarısı */}
+      <Snackbar
+        open={loginAlertOpen}
+        autoHideDuration={4000}
+        onClose={() => setLoginAlertOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setLoginAlertOpen(false)} 
+          severity="warning" 
+          sx={{ 
+            width: '100%',
+            bgcolor: '#FFF3CD',
+            color: '#856404',
+            border: '1px solid #FFEAA7',
+            '& .MuiAlert-icon': {
+              color: '#856404'
+            }
+          }}
+        >
+          Lütfen önce giriş yapınız!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

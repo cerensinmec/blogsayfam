@@ -1,19 +1,17 @@
 {
   "rules": {
-    "conversations": {
-      ".read": "auth != null",
-      ".write": "auth != null",
-      "$conversationId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "messages": {
-      ".read": "auth != null",
-      ".write": "auth != null",
-      "$messageId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
+    ".read": false,
+    ".write": false,
+    "blog-posts": {
+      ".read": true,
+      ".write": false,
+      "$postId": {
+        ".read": true,
+        ".write": false,
+        "totalReadingTime": {
+          ".read": true,
+          ".write": "auth != null"
+        }
       }
     }
   }

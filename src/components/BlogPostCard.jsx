@@ -16,6 +16,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import PropTypes from 'prop-types';
+import { themeColors } from '../theme/theme';
 
 const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, user, navigate, likeCount, userLiked, onLike, onCommentClick, commentCount, userSaved, onSave }) => (
   console.log('post',post),
@@ -25,7 +26,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      border: '2px solid #5A0058',
+      border: `2px solid ${themeColors.primary}`,
       borderRadius: 2,
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       transition: 'all 0.3s ease',
@@ -45,7 +46,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             fontSize: { xs: '0.7rem', md: '0.75rem' },
             fontWeight: 500,
             borderRadius: 1,
-            bgcolor: '#87CEEB', // Açık mavi
+            bgcolor: themeColors.category, // Açık mavi
             color: '#2c3e50', // Koyu yazı rengi
             '&:hover': {
               bgcolor: '#7BB8D9'
@@ -64,7 +65,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
           fontWeight: 600,
           lineHeight: 1.3,
           mb: 2,
-          color: '#5A0058', // Koyu mor
+          color: themeColors.primary, // Koyu mor
           fontSize: { xs: '1rem', md: '1.25rem' }
         }}
       >
@@ -98,7 +99,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             width: 28, 
             height: 28,
             fontSize: '0.875rem',
-            bgcolor: '#5A0058' // Koyu mor
+            bgcolor: themeColors.primary // Koyu mor
           }}
         >
           {post.authorName?.charAt(0) || '?'}
@@ -119,8 +120,8 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
             '&:active': { transform: 'scale(1.1)' }
           }}
         >
-          <span style={{ fontSize: 20, color: '#5A0058', marginRight: 4 }}>💬</span>
-          <Typography variant="body2" sx={{ color: '#5A0058', fontWeight: 600 }}>
+          <span style={{ fontSize: 20, color: themeColors.primary, marginRight: 4 }}>💬</span>
+          <Typography variant="body2" sx={{ color: themeColors.primary, fontWeight: 600 }}>
             {commentCount}
           </Typography>
         </Box>
@@ -171,7 +172,7 @@ const BlogPostCard = ({ post, onEdit, onDelete, formatDate, getCategoryColor, us
         onClick={() => navigate(`/blog/${post.firestoreId}`)}
         startIcon={<ReadMoreIcon />}
         sx={{ 
-          color: '#5A0058',
+          color: themeColors.primary,
           fontWeight: 500,
           fontSize: { xs: '0.75rem', md: '0.875rem' },
           '&:hover': {

@@ -238,3 +238,29 @@ select:focus {
 .city:hover {
   fill: #8D6E63;
 }
+
+/* Pulse animasyonu - okuma durumu için */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Okuma progress bar animasyonu */
+.reading-progress {
+  transition: all 0.3s ease;
+}
+
+/* Okuma durumu göstergesi */
+.reading-indicator {
+  animation: pulse 1.5s infinite;
+}

@@ -99,7 +99,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
           bio: '',
           location: '',
           website: '',
-          isAdmin: false,
+  
         });
       }
       onAuthSuccess();
@@ -142,18 +142,20 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
       PaperProps={{
         sx: {
           borderRadius: 3,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-          border: '1px solid rgba(78, 52, 46, 0.1)',
+          boxShadow: '0 8px 32px rgba(90, 0, 88, 0.15)',
+          border: '3px solid #8B5A8B',
+          bgcolor: 'white'
         }
       }}
     >
       <DialogTitle sx={{ 
         m: 0, 
         p: 3, 
-        bgcolor: '#F3EDE7',
-        borderBottom: '1px solid rgba(78, 52, 46, 0.1)',
-        color: '#4E342E',
-        fontWeight: 600
+        bgcolor: 'white',
+        borderBottom: '2px solid #8B5A8B',
+        color: '#8B5A8B',
+        fontWeight: 700,
+        fontSize: '1.2rem'
       }}>
         {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
         <IconButton
@@ -163,9 +165,9 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             position: 'absolute', 
             right: 8, 
             top: 8,
-            color: '#4E342E',
+            color: '#8B5A8B',
             '&:hover': {
-              backgroundColor: 'rgba(78, 52, 46, 0.08)',
+              backgroundColor: 'rgba(139, 90, 139, 0.1)',
             }
           }}
         >
@@ -173,7 +175,7 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
         </IconButton>
       </DialogTitle>
       <form onSubmit={handleSubmit}>
-        <DialogContent dividers sx={{ p: 3, bgcolor: '#fff' }}>
+        <DialogContent dividers sx={{ p: 3, bgcolor: 'white' }}>
           {error && (
             <Alert 
               severity="error" 
@@ -195,7 +197,30 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required={!isLogin}
-                sx={{ mb: 1 }}
+                sx={{ 
+                  mb: 1,
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#8B5A8B',
+                      borderWidth: '2px'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#8B5A8B',
+                    fontWeight: 600
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#8B5A8B'
+                  }
+                }}
                 disabled={loading || validating}
               />
               <TextField
@@ -206,7 +231,30 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required={!isLogin}
-                sx={{ mb: 1 }}
+                sx={{ 
+                  mb: 1,
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#8B5A8B',
+                      borderWidth: '2px'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#8B5A8B',
+                    fontWeight: 600
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#8B5A8B'
+                  }
+                }}
                 disabled={loading || validating}
               />
               <TextField
@@ -217,7 +265,34 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required={!isLogin}
-                sx={{ mb: 1 }}
+                sx={{ 
+                  mb: 1,
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#87CEEB',
+                      borderWidth: '2px'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#8B5A8B',
+                      borderWidth: '2px'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#8B5A8B',
+                    fontWeight: 600
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#8B5A8B'
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: '#8B5A8B',
+                    fontSize: '0.75rem'
+                  }
+                }}
                 helperText="Benzersiz bir kullanıcı adı seçin"
                 disabled={loading || validating}
               />
@@ -232,7 +307,34 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            sx={{ mb: 1 }}
+            sx={{ 
+              mb: 1,
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&:hover fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#8B5A8B',
+                  borderWidth: '2px'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: '#8B5A8B',
+                fontWeight: 600
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#8B5A8B'
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#8B5A8B',
+                fontSize: '0.75rem'
+              }
+            }}
             helperText={!isLogin ? "Benzersiz bir e-posta adresi kullanın" : ""}
             disabled={loading || validating}
           />
@@ -244,21 +346,54 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            sx={{ mb: 1 }}
+            sx={{ 
+              mb: 1,
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&:hover fieldset': {
+                  borderColor: '#87CEEB',
+                  borderWidth: '2px'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#8B5A8B',
+                  borderWidth: '2px'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: '#8B5A8B',
+                fontWeight: 600
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#8B5A8B'
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#8B5A8B',
+                fontSize: '0.75rem'
+              }
+            }}
             helperText={!isLogin ? "En az 6 karakter olmalıdır" : ""}
             disabled={loading || validating}
           />
         </DialogContent>
         <DialogActions sx={{ 
           p: 3, 
-          bgcolor: '#F3EDE7',
-          borderTop: '1px solid rgba(78, 52, 46, 0.1)',
+          bgcolor: 'white',
+          borderTop: '2px solid #8B5A8B',
           gap: 2
         }}>
           <Button 
             onClick={toggleMode} 
             disabled={loading || validating}
-            sx={{ color: '#4E342E' }}
+            sx={{ 
+              color: '#8B5A8B',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'rgba(139, 90, 139, 0.1)'
+              }
+            }}
           >
             {isLogin ? 'Hesap Oluştur' : 'Giriş Yap'}
           </Button>
@@ -267,9 +402,15 @@ function AuthForm({ open, onClose, onAuthSuccess }) {
             variant="contained" 
             disabled={loading || validating}
             sx={{ 
-              bgcolor: '#4E342E',
-              '&:hover': { bgcolor: '#260e04' },
-              '&:disabled': { bgcolor: 'rgba(78, 52, 46, 0.5)' }
+              bgcolor: '#8B5A8B',
+              fontWeight: 700,
+              '&:hover': { 
+                bgcolor: '#7A4A7A',
+                transform: 'translateY(-1px)'
+              },
+              '&:disabled': { 
+                bgcolor: 'rgba(139, 90, 139, 0.5)' 
+              }
             }}
           >
             {loading ? 'İşleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
