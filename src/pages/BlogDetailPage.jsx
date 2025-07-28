@@ -38,6 +38,7 @@ import ShareButtons from '../components/ShareButtons';
 import RelatedPostsList from '../components/RelatedPostsList';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import useReadingTime from '../hooks/useReadingTime';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 
 function BlogDetailPage() {
@@ -589,19 +590,50 @@ function BlogDetailPage() {
                 textAlign: 'justify',
                 mb: 2
               }}>
-                {post.content.split('\n').map((paragraph, index) => (
-                  <Typography key={index} variant="body1" paragraph sx={{ 
-                    lineHeight: 1.8, 
-                    fontSize: '1.1rem',
-                    color: '#333',
-                    fontWeight: 400,
-                    textAlign: 'justify',
-                    mb: 1
-                  }}>
-                    {paragraph}
-                  </Typography>
-                ))}
+                <MarkdownRenderer content={post.content} />
               </Box>
+
+              {/* Blog Fotoğrafları */}
+              {post.images && post.images.length > 0 && (
+                <Box sx={{ my: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 2, color: '#5A0058', fontWeight: 600 }}>
+                    📸 Fotoğraflar
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    {post.images.map((image, index) => (
+                      <Box key={index} sx={{ textAlign: 'center' }}>
+                        <img
+                          src={image.url}
+                          alt={image.caption || 'Blog fotoğrafı'}
+                          style={{
+                            maxWidth: '100%',
+                            height: 'auto',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                            maxHeight: 400
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        {image.caption && (
+                          <Typography 
+                            variant="caption" 
+                            sx={{ 
+                              display: 'block', 
+                              mt: 1, 
+                              color: 'text.secondary',
+                              fontStyle: 'italic'
+                            }}
+                          >
+                            {image.caption}
+                          </Typography>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </CardContent>
 
             {/* Etkileşim Butonları */}

@@ -13,14 +13,20 @@ import {
   CircularProgress,
   Alert,
   Tabs,
-  Tab
+  Tab,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
-import { Message as MessageIcon } from '@mui/icons-material';
+import { Message as MessageIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase/config';
-import { doc, getDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, orderBy, updateDoc } from 'firebase/firestore';
 import FollowersModal from '../components/FollowersModal';
 import { getFollowers, getFollowing, isFollowing, followUser, unfollowUser } from '../services/followService';
+import ImageUpload from '../components/ImageUpload';
 
 function UserProfilePage() {
   const { userId } = useParams();
@@ -37,6 +43,8 @@ function UserProfilePage() {
   const [isUserFollowing, setIsUserFollowing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [savedPosts, setSavedPosts] = useState([]);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [updatingPhoto, setUpdatingPhoto] = useState(false);
 
   useEffect(() => {
     console.log('UserProfilePage - userId:', userId);
@@ -158,6 +166,26 @@ function UserProfilePage() {
     fetchFollowersData();
   };
 
+  const handlePhotoUpdate = async (photoURL) => {
+    if (!currentUser || currentUser.uid !== userId) return;
+    
+    try {
+      setUpdatingPhoto(true);
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { photoURL });
+      
+      // Profili güncelle
+      setProfile(prev => ({ ...prev, photoURL }));
+      
+      setPhotoDialogOpen(false);
+    } catch (error) {
+      console.error('Profil fotoğrafı güncellenirken hata:', error);
+      alert('Profil fotoğrafı güncellenirken bir hata oluştu.');
+    } finally {
+      setUpdatingPhoto(false);
+    }
+  };
+
   if (loading) {
     return <Container sx={{ py: 4, textAlign: 'center' }}><CircularProgress /></Container>;
   }
@@ -179,11 +207,33 @@ function UserProfilePage() {
     }}>
       {/* Kullanıcı Bilgileri */}
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-        {/* Profil Fotoğrafı */}
-        <Avatar 
-          src={profile.photoURL} 
-          sx={{ width: 120, height: 120, border: '3px solid #5A0058', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', mb: 2 }} 
-        />
+        {/* Profil Fotoğrafı ve Kamera Simgesi */}
+        <Box sx={{ position: 'relative', mb: 2 }}>
+          <Avatar 
+            src={profile.photoURL} 
+            sx={{ width: 120, height: 120, border: '3px solid #5A0058', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} 
+          />
+          {currentUser && currentUser.uid === userId && (
+            <IconButton
+              onClick={() => setPhotoDialogOpen(true)}
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                bgcolor: '#5A0058',
+                color: 'white',
+                width: 36,
+                height: 36,
+                border: '2px solid white',
+                '&:hover': {
+                  bgcolor: '#4A0047'
+                }
+              }}
+            >
+              <CameraIcon fontSize="small" />
+            </IconButton>
+          )}
+        </Box>
         
         {/* Kullanıcı Adı */}
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, textAlign: 'center' }}>
@@ -778,6 +828,42 @@ function UserProfilePage() {
       following={following}
       loading={followersLoading}
     />
+
+    {/* Profil Fotoğrafı Yükleme Dialogu */}
+    <Dialog
+      open={photoDialogOpen}
+      onClose={() => setPhotoDialogOpen(false)}
+      maxWidth="sm"
+      fullWidth
+    >
+      <DialogTitle sx={{ color: '#5A0058', fontWeight: 'bold', textAlign: 'center' }}>
+        📸 Profil Fotoğrafını Güncelle
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ p: 2 }}>
+          <ImageUpload
+            currentImageUrl={profile.photoURL}
+            onImageUpload={handlePhotoUpdate}
+            onImageDelete={() => handlePhotoUpdate('')}
+            size="large"
+            showPreview={true}
+            disabled={updatingPhoto}
+          />
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+            Profil fotoğrafınızı galeriden seçebilir veya kamera ile çekebilirsiniz
+          </Typography>
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button 
+          onClick={() => setPhotoDialogOpen(false)}
+          disabled={updatingPhoto}
+          sx={{ color: 'text.secondary' }}
+        >
+          İptal
+        </Button>
+      </DialogActions>
+    </Dialog>
   </Container>
   );
 }

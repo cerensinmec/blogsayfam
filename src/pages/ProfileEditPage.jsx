@@ -13,6 +13,7 @@ import { auth, db } from '../firebase/config';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import ImageUpload from '../components/ImageUpload';
 
 function ProfileEditPage() {
   const [user, setUser] = useState(null);
@@ -129,7 +130,13 @@ function ProfileEditPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Box component="form" onSubmit={handleSave} sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2 } }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Avatar src={profile.photoURL} sx={{ width: { xs: 60, md: 80 }, height: { xs: 60, md: 80 } }} />
+          <ImageUpload
+            currentImageUrl={profile.photoURL}
+            onImageUpload={(url) => setProfile({ ...profile, photoURL: url })}
+            onImageDelete={() => setProfile({ ...profile, photoURL: '' })}
+            size="large"
+            showPreview={true}
+          />
         </Box>
         <TextField
           label="Ad Soyad"
@@ -165,14 +172,9 @@ function ProfileEditPage() {
           fullWidth
           sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
         />
-        <TextField
-          label="Profil Fotoğrafı URL"
-          name="photoURL"
-          value={profile.photoURL}
-          onChange={handleChange}
-          fullWidth
-          sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}
-        />
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 1 }}>
+          Profil fotoğrafınızı yukarıdaki butonlarla yükleyebilir veya kamera ile çekebilirsiniz
+        </Typography>
         <TextField
           label="E-posta"
           name="email"
