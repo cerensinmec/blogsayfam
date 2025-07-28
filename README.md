@@ -137,3 +137,4 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 ---
 
 ⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+# Deployment tetikleme
