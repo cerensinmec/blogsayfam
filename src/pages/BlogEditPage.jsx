@@ -18,12 +18,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider
+  Divider,
+  IconButton
 } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Save as SaveIcon, Preview as PreviewIcon, Add as AddIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon, Save as SaveIcon, Preview as PreviewIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { auth, db } from '../firebase/config';
 import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import BlogImageUpload from '../components/BlogImageUpload';
 
 function BlogEditPage() {
   const [post, setPost] = useState(null);
@@ -38,6 +40,7 @@ function BlogEditPage() {
     content: '',
     category: 'genel'
   });
+  const [blogImages, setBlogImages] = useState([]);
   const { id: postId } = useParams();
   const navigate = useNavigate();
 
@@ -58,6 +61,8 @@ function BlogEditPage() {
           content: postData.content,
           category: postData.category || 'genel'
         });
+        // Mevcut fotoğrafları yükle
+        setBlogImages(postData.images || []);
         setIsNewPost(false);
       } else {
         console.log('BlogEditPage - Post not found for ID:', postId);
@@ -124,6 +129,7 @@ function BlogEditPage() {
           title: formData.title.trim(),
           content: formData.content.trim(),
           category: formData.category,
+          images: blogImages, // Fotoğrafları ekle
           authorId: user.uid,
           authorName: user.displayName || user.email,
           authorEmail: user.email,
@@ -133,7 +139,9 @@ function BlogEditPage() {
           likes: 0
         };
 
+        console.log('Blog yazısı kaydediliyor:', newPostData);
         const docRef = await addDoc(collection(db, 'blog-posts'), newPostData);
+        console.log('Blog yazısı başarıyla kaydedildi, ID:', docRef.id);
         navigate(`/blog/${docRef.id}`);
       } else {
         // Mevcut blog yazısını güncelle
@@ -141,6 +149,7 @@ function BlogEditPage() {
           title: formData.title.trim(),
           content: formData.content.trim(),
           category: formData.category,
+          images: blogImages, // Fotoğrafları ekle
           updatedAt: serverTimestamp()
         };
 
@@ -366,9 +375,92 @@ function BlogEditPage() {
             </Select>
           </FormControl>
 
+          {/* Fotoğraf Ekleme Bileşeni */}
+          <Box sx={{ 
+            mb: 3, 
+            p: 2, 
+            border: '2px dashed #87CEEB', 
+            borderRadius: 2,
+            bgcolor: 'rgba(135, 206, 235, 0.05)'
+          }}>
+            <Typography variant="subtitle2" sx={{ mb: 2, color: '#5A0058', fontWeight: 600, textAlign: 'center' }}>
+              📸 Fotoğraf Ekle
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary', textAlign: 'center' }}>
+              Fotoğraf ekledikten sonra içeriğinizi normal şekilde yazabilirsiniz.
+            </Typography>
+            <BlogImageUpload
+              onImageInsert={(imageData) => {
+                setBlogImages([...blogImages, imageData]);
+              }}
+              disabled={saving}
+            />
+          </Box>
+
+          {/* Yüklenen Fotoğraflar */}
+          {blogImages.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ mb: 2, color: '#5A0058', fontWeight: 600 }}>
+                📸 Yüklenen Fotoğraflar
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                {blogImages.map((image, index) => (
+                  <Box key={index} sx={{ position: 'relative' }}>
+                    <img
+                      src={image.url}
+                      alt={image.caption || 'Blog fotoğrafı'}
+                      style={{
+                        width: 150,
+                        height: 150,
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        border: '2px solid #87CEEB'
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => {
+                        const newImages = blogImages.filter((_, i) => i !== index);
+                        setBlogImages(newImages);
+                      }}
+                      sx={{
+                        position: 'absolute',
+                        top: -8,
+                        right: -8,
+                        bgcolor: 'error.main',
+                        color: 'white',
+                        width: 24,
+                        height: 24,
+                        '&:hover': {
+                          bgcolor: 'error.dark'
+                        }
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                    {image.caption && (
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          display: 'block', 
+                          mt: 0.5, 
+                          color: 'text.secondary',
+                          textAlign: 'center',
+                          maxWidth: 150
+                        }}
+                      >
+                        {image.caption}
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+
           {/* İçerik Editörü */}
           <TextField
             label="İçerik"
+            name="content"
             fullWidth
             multiline
             rows={15}
@@ -401,7 +493,7 @@ function BlogEditPage() {
               }
             }}
             required
-            placeholder="Blog yazınızın içeriğini buraya yazın..."
+            placeholder="Blog yazınızın içeriğini buraya yazın... Fotoğraf eklemek için yukarıdaki butonları kullanabilirsiniz."
           />
 
           {/* Aksiyon Butonları */}

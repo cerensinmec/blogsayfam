@@ -10,13 +10,19 @@ import {
   Tabs,
   Tab,
   Alert,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import { 
   useNavigate 
 } from 'react-router-dom';
 import { auth, db } from '../firebase/config';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 
 function MyBlogPage() {
   const navigate = useNavigate();
@@ -24,6 +30,9 @@ function MyBlogPage() {
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const categories = [];
 
@@ -62,6 +71,36 @@ function MyBlogPage() {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleDeleteClick = (post) => {
+    setPostToDelete(post);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!postToDelete) return;
+
+    try {
+      setDeleting(true);
+      await deleteDoc(doc(db, 'blog-posts', postToDelete.id));
+      
+      // Listeyi güncelle
+      setUserPosts(userPosts.filter(post => post.id !== postToDelete.id));
+      
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
+    } catch (error) {
+      console.error('Blog yazısı silinirken hata:', error);
+      alert('Blog yazısı silinirken bir hata oluştu.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setPostToDelete(null);
   };
 
   return (
@@ -245,6 +284,25 @@ function MyBlogPage() {
                               >
                                 Düzenle
                               </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => handleDeleteClick(post)}
+                                sx={{
+                                  color: 'error.main',
+                                  borderColor: 'error.main',
+                                  minWidth: 'auto',
+                                  px: 1,
+                                  '&:hover': { 
+                                    bgcolor: 'error.main', 
+                                    color: 'white',
+                                    borderColor: 'error.main'
+                                  }
+                                }}
+                                title="Blog yazısını sil"
+                              >
+                                🗑️
+                              </Button>
                             </Box>
                           </Box>
                         </CardContent>
@@ -319,6 +377,44 @@ function MyBlogPage() {
           </Grid>
         </Box>
       )}
+
+      {/* Silme Onay Dialogu */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: 'error.main', fontWeight: 'bold' }}>
+          🗑️ Blog Yazısını Sil
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            <strong>"{postToDelete?.title}"</strong> başlıklı blog yazısını silmek istediğinizden emin misiniz?
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Bu işlem geri alınamaz. Blog yazısı ve tüm fotoğrafları kalıcı olarak silinecektir.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={handleDeleteCancel}
+            disabled={deleting}
+            sx={{ color: 'text.secondary' }}
+          >
+            İptal
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm}
+            disabled={deleting}
+            variant="contained"
+            color="error"
+            startIcon={deleting ? <CircularProgress size={16} /> : <DeleteIcon />}
+          >
+            {deleting ? 'Siliniyor...' : 'Sil'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
